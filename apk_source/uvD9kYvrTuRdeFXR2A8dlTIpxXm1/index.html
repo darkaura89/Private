@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>𝗕𝗶𝗴-𝗦𝗺𝗮𝗹𝗹 𝗩𝗶𝗽 𝗛𝗮𝗰𝗸 2.0</title>
+    <style>
+        :root { --neon: #00f2ff; --bg: rgba(10, 10, 18, 0.98); }
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: 'Segoe UI', sans-serif; background: #000; }
+        iframe { width: 100%; height: 100%; border: none; }
+
+        /* RGB বর্ডার অ্যানিমেশন */
+        @keyframes rgb-glow {
+            0% { border-color: #ff0000; box-shadow: 0 0 15px #ff0000; }
+            33% { border-color: #00ff00; box-shadow: 0 0 15px #00ff00; }
+            66% { border-color: #0000ff; box-shadow: 0 0 15px #0000ff; }
+            100% { border-color: #ff0000; box-shadow: 0 0 15px #ff0000; }
+        }
+
+        /* মেইন টুল বক্স */
+        #hack-tool {
+            position: fixed; 
+            top: 50px; 
+            left: 20px; 
+            width: 210px;
+            background: var(--bg); 
+            border: 3px solid #ff0000;
+            border-radius: 15px; 
+            z-index: 10000; 
+            color: white; 
+            animation: rgb-glow 3s linear infinite;
+            touch-action: none; /* মোবাইল ড্রাগিং স্মুথ করার জন্য */
+            user-select: none;
+        }
+
+        .header { 
+            background: rgba(255, 255, 255, 0.1); 
+            padding: 12px; 
+            border-radius: 13px 13px 0 0; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid rgba(255,255,255,0.1); 
+            cursor: move; 
+        }
+        
+        .content { padding: 15px; text-align: center; }
+        
+        #pass-screen { text-align: center; }
+        input { width: 85%; padding: 8px; margin: 10px 0; border-radius: 5px; border: 1px solid var(--neon); background: #000; color: #fff; text-align: center; outline: none; }
+
+        #main-app { display: none; }
+        
+        .period-box { font-size: 11px; color: #00f2ff; margin-bottom: 5px; font-weight: bold; }
+        .timer-box { font-size: 22px; font-weight: bold; color: #ffffff; margin-bottom: 15px; text-shadow: 0 0 10px #fff; }
+        
+        .result-label { font-size: 10px; color: #aaa; text-transform: uppercase; }
+        .res-val { font-size: 38px; font-weight: 900; margin: 10px 0; text-shadow: 0 0 20px currentColor; }
+
+        .predict-btn { width: 100%; padding: 10px; background: linear-gradient(45deg, #ff0000, #ff00ff); border: none; color: #fff; font-weight: 900; border-radius: 8px; cursor: pointer; }
+
+        .tg-btn { display: block; text-align: center; background: #0088cc; color: white; text-decoration: none; font-size: 10px; padding: 8px; border-radius: 8px; margin-top: 15px; font-weight: bold; }
+
+        /* মিনিমাইজড স্টাইল */
+        .minimized { width: 60px !important; height: 60px !important; border-radius: 50% !important; overflow: hidden; cursor: pointer; }
+        .minimized .header, .minimized .content { display: none; }
+        .vip-tag { display: none; font-weight: 900; color: #fff; font-size: 18px; text-shadow: 0 0 10px #fff; }
+        .minimized .vip-tag { display: flex; height: 100%; align-items: center; justify-content: center; }
+    </style>
+</head>
+<body>
+
+<!-- গেমের ফ্রেম -->
+<iframe src="https://hgnice.cc/#/register?invitationCode=773641745486"></iframe>
+
+<div id="hack-tool">
+    <div class="header" id="drag-handle">
+        <span style="font-size: 10px; font-weight: bold;">𝗕𝗶𝗴-𝗦𝗺𝗮𝗹𝗹 / 𝗩𝗶𝗽 𝗛𝗮𝗰𝗸2.0</span>
+        <div id="min-btn" style="cursor:pointer; color: #fff; font-size: 24px; line-height: 0;">−</div>
+    </div>
+    
+    <div class="vip-tag" id="restore-btn">VIP</div>
+
+    <div class="content">
+        <div id="pass-screen">
+            <div style="font-size: 10px; color: #aaa;">AUTH REQUIRED</div>
+            <input type="password" id="pass-input" placeholder="Password...">
+            <button class="predict-btn" onclick="checkPass()">LOGIN</button>
+        </div>
+
+        <div id="main-app">
+            <div class="period-box">ID: <span id="period-num">----</span></div>
+            <div class="timer-box" id="timer">00:30</div>
+            
+            <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 10px;">
+                <div class="result-label">PREDICTION</div>
+                <div id="res-val" class="res-val">---</div>
+            </div>
+
+            <a href="https://t.me/imran_officials" target="_blank" class="tg-btn">JOIN TELEGRAM</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const key = "VIP";
+    const tool = document.getElementById("hack-tool");
+    const dragHandle = document.getElementById("drag-handle");
+    let lastPeriod = "";
+
+    // পাসওয়ার্ড লজিক
+    function checkPass() {
+        if(document.getElementById('pass-input').value === key) {
+            document.getElementById('pass-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            startSystem();
+        } else { alert("Wrong Password!"); }
+    }
+
+    // ৩০ সেকেন্ড অটো সিস্টেম
+    function startSystem() {
+        setInterval(() => {
+            const now = new Date();
+            const sec = now.getSeconds();
+            const remain = 30 - (sec % 30);
+            document.getElementById('timer').innerText = `00:${remain < 10 ? '0'+remain : remain}`;
+
+            const timeCode = Math.floor((now.getHours()*3600 + now.getMinutes()*60 + now.getSeconds()) / 30);
+            const period = `${now.getFullYear()}${now.getMonth()+1}${now.getDate()}${timeCode}`;
+            
+            if(period !== lastPeriod) {
+                lastPeriod = period;
+                document.getElementById('period-num').innerText = period;
+                const res = (parseInt(period.slice(-1)) % 2 === 0) ? "BIG" : "SMALL";
+                const display = document.getElementById('res-val');
+                display.innerText = res;
+                display.style.color = (res === "BIG") ? "#00f2ff" : "#ff4d4d";
+            }
+        }, 1000);
+    }
+
+    // --- ড্রাগেবল লজিক (মোবাইল ও পিসি দুটোর জন্যই) ---
+    let isDragging = false;
+    let currentX, currentY, initialX, initialY, xOffset = 0, yOffset = 0;
+
+    function dragStart(e) {
+        if (e.target === document.getElementById('min-btn')) return;
+        let clientX = e.type === "touchstart" ? e.touches[0].clientX : e.clientX;
+        let clientY = e.type === "touchstart" ? e.touches[0].clientY : e.clientY;
+        
+        initialX = clientX - xOffset;
+        initialY = clientY - yOffset;
+        if (e.target === dragHandle || dragHandle.contains(e.target)) isDragging = true;
+    }
+
+    function dragEnd() {
+        initialX = currentX;
+        initialY = currentY;
+        isDragging = false;
+    }
+
+    function drag(e) {
+        if (isDragging) {
+            e.preventDefault();
+            let clientX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
+            let clientY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
+            
+            currentX = clientX - initialX;
+            currentY = clientY - initialY;
+            xOffset = currentX;
+            yOffset = currentY;
+            setTranslate(currentX, currentY, tool);
+        }
+    }
+
+    function setTranslate(xPos, yPos, el) {
+        el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+    }
+
+    document.addEventListener("touchstart", dragStart, false);
+    document.addEventListener("touchend", dragEnd, false);
+    document.addEventListener("touchmove", drag, false);
+    document.addEventListener("mousedown", dragStart, false);
+    document.addEventListener("mouseup", dragEnd, false);
+    document.addEventListener("mousemove", drag, false);
+
+    // মিনিমাইজ ও রিস্টোর
+    document.getElementById('min-btn').onclick = (e) => {
+        e.stopPropagation();
+        tool.classList.add('minimized');
+    };
+    document.getElementById('restore-btn').onclick = () => {
+        tool.classList.remove('minimized');
+    };
+</script>
+
+</body>
+</html>
