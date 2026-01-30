@@ -1,18 +1,269 @@
-<!doctype html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>New Website</title>
-        <style>
-            body { background: #f0f0f0; color: #333; font-family: sans-serif; text-align: center; padding-top: 50px; }
-            h1 { color: #2196F3; }
-        </style>
-    </head>
-    <body>
-        <h1>Hello World!</h1>
-        <p>Created with HopWeb Ultimate.</p>
-        <script>
-            console.log("Welcome to HopWeb!");
-        </script>
-    </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRAZY CLUB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #8b5cf6; --secondary: #d946ef; }
+        body { font-family: 'Poppins', sans-serif; background: #0f172a; display: flex; justify-content: center; margin: 0; color: #1e293b; }
+        
+        .main-app { 
+            max-width: 450px; width: 100%; min-height: 100vh; 
+            background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%); 
+            position: relative; padding-bottom: 120px; overflow-x: hidden;
+        }
+
+        /* --- Premium Auth Page --- */
+        #p-auth {
+            background: radial-gradient(circle at top right, #2e1065, #0f172a);
+            position: fixed; inset: 0; z-index: 5000; display: flex; flex-direction: column; justify-content: center; padding: 24px;
+        }
+        .glass-input {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(10px); color: white !important;
+        }
+        .brand-logo {
+            font-size: 5rem; font-weight: 900; line-height: 1; text-align: center;
+            background: linear-gradient(to bottom, #fff, #8b5cf6);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        /* --- App Styles --- */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 24px;
+        }
+        .btn-3d {
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 6px 0 #6d28d9; position: relative;
+        }
+        .btn-3d:active { transform: translateY(4px); box-shadow: 0 2px 0 #6d28d9; }
+        
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.3s; cursor: pointer; }
+        .nav-item:active { transform: scale(0.9); }
+
+        .copy-toast {
+            position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.8); color: white; padding: 12px 24px;
+            border-radius: 50px; font-weight: bold; z-index: 10000; display: none;
+        }
+        .hidden { display: none !important; }
+        .alert-pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+
+<body>
+    <div id="toast" class="copy-toast">✅ Copied!</div>
+
+    <div id="custom-alert" class="fixed inset-0 z-[6000] flex items-center justify-center px-6 hidden">
+        <div class="fixed inset-0 bg-black/70 backdrop-blur-sm"></div>
+        <div class="glass-card p-8 w-full max-w-xs text-center relative z-[6001] alert-pop border-t-4 border-rose-500">
+            <div class="text-5xl mb-4">⚠️</div>
+            <h3 class="text-xl font-black text-slate-800 mb-2">Insufficient Balance</h3>
+            <p class="text-slate-500 mb-6 text-sm">Please deposit to continue playing.</p>
+            <button onclick="closeAlert()" class="w-full py-3 bg-purple-600 text-white rounded-xl font-bold">Deposit Now</button>
+        </div>
+    </div>
+
+    <div class="main-app">
+        
+        <div id="p-auth">
+            <div class="text-center mb-10">
+                <h1 class="brand-logo italic">CRAZY</h1>
+                <p class="text-purple-400 tracking-[10px] font-bold uppercase">CLUB</p>
+            </div>
+            <div class="space-y-4">
+                <input type="number" id="ph" placeholder="Mobile Number" class="w-full p-5 glass-input rounded-2xl outline-none">
+                <input type="password" id="ps" placeholder="Password (Min 8 chars)" class="w-full p-5 glass-input rounded-2xl outline-none">
+                <input type="text" id="ref-code" placeholder="Invite Code" class="w-full p-5 glass-input rounded-2xl outline-none">
+                <button onclick="handleSecureAuth()" class="w-full bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest">Register Now</button>
+            </div>
+        </div>
+
+        <div id="p-lobby" class="page hidden">
+            <div class="p-5 flex justify-between items-center bg-white/50 backdrop-blur-md sticky top-0 z-50">
+                <span class="text-2xl font-black text-purple-600 italic">CRAZY</span>
+                <div class="bg-white px-4 py-2 rounded-2xl shadow-inner border border-purple-100">
+                    <span class="text-[10px] block text-gray-400 font-bold leading-none">BALANCE</span>
+                    <span class="bal-text font-black text-purple-600">$ 0.00</span>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-[30px] p-8 text-white shadow-xl cursor-pointer" onclick="showP('main')">
+                    <h3 class="text-3xl font-black">WinGo 1M</h3>
+                    <p class="opacity-80">Predict & Win Massive Rewards</p>
+                    <div class="mt-4 bg-white/20 inline-block px-4 py-1 rounded-full text-sm font-bold backdrop-blur-md">Play Now →</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="p-main" class="hidden">
+            <div class="p-4 flex items-center gap-4">
+                <button onclick="showP('lobby')" class="w-10 h-10 flex items-center justify-center bg-white rounded-xl shadow-sm text-purple-600 font-bold">❮</button>
+                <span class="font-black text-slate-700 uppercase">Crazy Wingo</span>
+            </div>
+            <div class="m-4 glass-card p-6 bg-slate-900 text-white border-none overflow-hidden relative">
+                <div id="lock-overlay" class="absolute inset-0 bg-slate-900/90 z-20 hidden flex items-center justify-center font-black text-red-500 text-xl">TIMEOUT</div>
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-[10px] text-purple-400 font-bold tracking-widest uppercase">Period Number</p>
+                        <h4 id="period-id" class="text-xl font-mono tracking-tighter">------</h4>
+                    </div>
+                    <div class="text-right">
+                        <div id="timer" class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-purple-400 to-purple-600">00:00</div>
+                    </div>
+                </div>
+            </div>
+            <div class="px-4 grid grid-cols-3 gap-3 mb-4">
+                <button onclick="openBet('Green')" class="py-3 bg-emerald-500 btn-3d rounded-2xl text-white font-bold" style="box-shadow: 0 5px 0 #065f46;">Green</button>
+                <button onclick="openBet('Violet')" class="py-3 bg-purple-500 btn-3d rounded-2xl text-white font-bold" style="box-shadow: 0 5px 0 #5b21b6;">Violet</button>
+                <button onclick="openBet('Red')" class="py-3 bg-rose-500 btn-3d rounded-2xl text-white font-bold" style="box-shadow: 0 5px 0 #9f1239;">Red</button>
+            </div>
+            <div class="px-4 grid grid-cols-2 gap-4 mb-6">
+                <button onclick="openBet('Big')" class="py-5 bg-slate-800 text-white rounded-3xl font-black text-xl btn-3d" style="box-shadow: 0 6px 0 #000;">BIG</button>
+                <button onclick="openBet('Small')" class="py-5 bg-white text-slate-800 rounded-3xl font-black text-xl btn-3d" style="box-shadow: 0 6px 0 #cbd5e1;">SMALL</button>
+            </div>
+            <div class="mx-4 mb-32 glass-card overflow-hidden">
+                <table class="w-full text-center text-xs">
+                    <tbody id="analysis-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="p-dep" class="page hidden">
+            <div class="p-6">
+                <div class="glass-card p-8 text-center border-t-4 border-purple-500">
+                    <p class="text-xs font-bold text-slate-400 uppercase mb-2">Official Address (Click to Copy)</p>
+                    <h2 onclick="smartCopy('01887817151')" class="text-2xl font-black text-slate-800 py-4 bg-slate-100 rounded-2xl mb-6 border-2 border-dashed border-purple-300 cursor-pointer">01887817151</h2>
+                    <div class="space-y-4 text-left">
+                        <input type="number" id="d-amt" placeholder="Amount to Deposit" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border">
+                        <input type="text" id="d-trx" placeholder="Transaction ID" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border">
+                        <button onclick="handleDepositSubmit()" class="w-full btn-3d bg-purple-600 text-white py-4 rounded-2xl font-bold uppercase mt-4">Submit Payment</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="p-wit" class="page hidden">
+            <div class="p-6">
+                <div class="glass-card p-8 border-t-4 border-rose-500">
+                    <h2 class="text-2xl font-black text-slate-800 mb-6 uppercase">Withdrawal</h2>
+                    <div class="space-y-4">
+                        <input type="text" id="w-ph" placeholder="Wallet Address" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border">
+                        <input type="number" id="w-amt" placeholder="Min Withdrawal $ 5.00" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border">
+                        <button onclick="handleWithdraw()" class="w-full btn-3d bg-rose-500 text-white py-4 rounded-2xl font-bold uppercase">Confirm Payout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <nav id="b-nav" class="fixed bottom-4 left-1/2 -translate-x-1/2 max-w-[420px] w-[92%] bg-white/90 backdrop-blur-xl flex justify-around py-3 rounded-[25px] shadow-2xl border border-white/50 hidden z-[1000]">
+            <div onclick="showP('lobby')" class="nav-item"><span>🏠</span><span class="text-[10px] font-black text-slate-400 uppercase">Home</span></div>
+            <div onclick="showP('dep')" class="nav-item"><span>💰</span><span class="text-[10px] font-black text-slate-400 uppercase">Deposit</span></div>
+            <div onclick="showP('wit')" class="nav-item"><span>💸</span><span class="text-[10px] font-black text-slate-400 uppercase">Withdraw</span></div>
+        </nav>
+
+        <div id="overlay-bet" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[1500]" onclick="closeBet()"></div>
+        <div id="bet-sheet" class="fixed bottom-[-100%] left-0 w-full glass-card rounded-t-[40px] p-8 z-[2000] transition-all duration-300">
+            <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-black uppercase">Bet <span id="bt-display" class="text-purple-600">--</span></h3><button onclick="closeBet()">✕</button></div>
+            <input type="number" id="b-amt" value="1.00" class="w-full text-5xl font-black text-center bg-transparent mb-8 outline-none text-slate-800">
+            <button onclick="confirmBet()" class="w-full btn-3d bg-purple-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest">Confirm Bet</button>
+        </div>
+    </div>
+
+    <script>
+        let balance = 0.00;
+        let lastPeriod = "";
+
+        // --- Auth Logic ---
+        function handleSecureAuth() {
+            const ph = document.getElementById('ph').value;
+            const ps = document.getElementById('ps').value;
+            if(ph.length < 10 || ps.length < 8) return alert("Mobile 10+ digits & Password 8+ chars required!");
+            document.getElementById('p-auth').classList.add('hidden');
+            showP('lobby');
+            document.getElementById('b-nav').classList.remove('hidden');
+            fetchH();
+        }
+
+        // --- Navigation ---
+        function showP(p) {
+            document.querySelectorAll('.page, #p-main, #p-lobby, #p-dep, #p-wit').forEach(el => el.classList.add('hidden'));
+            document.getElementById('p-'+p).classList.remove('hidden');
+        }
+
+        // --- Bet Logic ---
+        function openBet(t) {
+            document.getElementById('bt-display').innerText = t;
+            document.getElementById('bet-sheet').style.bottom = "0";
+            document.getElementById('overlay-bet').classList.remove('hidden');
+        }
+        function closeBet() { document.getElementById('bet-sheet').style.bottom = "-100%"; document.getElementById('overlay-bet').classList.add('hidden'); }
+        
+        function confirmBet() {
+            let a = parseFloat(document.getElementById('b-amt').value);
+            if(a > balance || balance <= 0) {
+                document.getElementById('custom-alert').classList.remove('hidden');
+                return;
+            }
+            balance -= a; updateBal(); closeBet();
+        }
+
+        function closeAlert() { document.getElementById('custom-alert').classList.add('hidden'); closeBet(); showP('dep'); }
+
+        // --- Deposit/Withdraw ---
+        function handleDepositSubmit() {
+            const amt = document.getElementById('d-amt').value;
+            const trx = document.getElementById('d-trx').value;
+            if(!amt || !trx) return alert("Please fill Amount and Transaction ID!");
+            alert("Deposit request submitted for verification!");
+            showP('lobby');
+        }
+
+        function handleWithdraw() {
+            let amt = parseFloat(document.getElementById('w-amt').value);
+            if(amt < 5 || amt > balance) return alert("Min $5 or Insufficient balance!");
+            balance -= amt; updateBal(); alert("Withdrawal requested!");
+        }
+
+        function updateBal() { document.querySelectorAll('.bal-text').forEach(el => el.innerText = "$ " + balance.toFixed(2)); }
+
+        // --- Real-time Data Fetching (Original Feature) ---
+        async function fetchH() {
+            try {
+                const res = await fetch("https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?ts=" + Date.now());
+                const json = await res.json();
+                const list = json.data.list;
+                const curP = list[0].issueNumber;
+                lastPeriod = curP;
+                document.getElementById('period-id').innerText = parseInt(curP) + 1;
+                const html = list.slice(0, 15).map(i => {
+                    const n = parseInt(i.number); const s = n >= 5 ? "Big" : "Small";
+                    let c = n % 2 === 0 ? 'bg-rose-500' : 'bg-emerald-500'; if(n===0||n===5) c = 'bg-purple-500';
+                    return `<tr class="border-b border-slate-50"><td class="py-3 text-slate-400">${i.issueNumber.toString().slice(-4)}</td><td class="font-black text-slate-700">${n}</td><td class="font-bold text-slate-400">${s}</td><td class="flex justify-center py-3"><div class="w-3 h-3 rounded-full ${c}"></div></td></tr>`;
+                }).join('');
+                document.getElementById('analysis-body').innerHTML = html;
+            } catch(e) {}
+        }
+
+        // --- Timer Logic (Original Feature) ---
+        setInterval(() => {
+            let s = 60 - new Date().getSeconds();
+            document.getElementById('timer').innerText = "00:" + (s < 10 ? '0'+s : s);
+            if(s <= 5) document.getElementById('lock-overlay').classList.remove('hidden');
+            else document.getElementById('lock-overlay').classList.add('hidden');
+            if(s === 59 || s === 1) fetchH();
+        }, 1000);
+
+        function smartCopy(text) {
+            navigator.clipboard.writeText(text);
+            const toast = document.getElementById('toast'); toast.style.display = 'block'; setTimeout(() => toast.style.display = 'none', 2000);
+        }
+    </script>
+</body>
 </html>
