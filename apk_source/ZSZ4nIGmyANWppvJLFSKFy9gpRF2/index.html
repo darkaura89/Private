@@ -1,18 +1,123 @@
-<!doctype html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>New Website</title>
-        <style>
-            body { background: #f0f0f0; color: #333; font-family: sans-serif; text-align: center; padding-top: 50px; }
-            h1 { color: #2196F3; }
-        </style>
-    </head>
-    <body>
-        <h1>Hello World!</h1>
-        <p>Created with HopWeb Ultimate.</p>
-        <script>
-            console.log("Welcome to HopWeb!");
-        </script>
-    </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SANDEEP • COLOR PREDICTION</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  background:#050000;
+  font-family:monospace;
+  color:#ff2b2b;
+  text-align:center;
+}
+h1{
+  margin-top:30px;
+  letter-spacing:3px;
+}
+.box{display:none;margin-top:40px;}
+button{
+  background:#120000;
+  border:1px solid #ff2b2b;
+  color:#ff2b2b;
+  padding:12px 25px;
+  margin:10px;
+  font-size:16px;
+}
+input{
+  background:#000;
+  border:1px solid #ff2b2b;
+  color:#ff2b2b;
+  padding:10px;
+  font-size:16px;
+  text-align:center;
+}
+.log{
+  color:#00ff9c;
+  font-size:12px;
+  margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>SANDEEP • COLOR PREDICTION</h1>
+
+<!-- REGISTER -->
+<div class="box" id="registerBox">
+  <p>STEP 1 : REGISTER GAME ACCOUNT</p>
+  <button onclick="openGame()">OPEN GAME REGISTER</button>
+  <p>STEP 2 : ENTER GAME UID</p>
+  <input id="uidInput" placeholder="ENTER GAME UID"><br>
+  <button onclick="saveUID()">SAVE UID</button>
+</div>
+
+<!-- LOGIN -->
+<div class="box" id="loginBox">
+  <p>ENTER UID PASSWORD</p>
+  <input id="loginPass" placeholder="GAME UID"><br>
+  <button onclick="login()">LOGIN</button>
+</div>
+
+<!-- HOME -->
+<div class="box" id="homeBox">
+  <h2>ACCESS GRANTED</h2>
+  <div class="log">[SYNC] Server verified ✔</div>
+  <div class="log">[AI] Prediction engine locked</div>
+  <div class="log">[SECURITY] UID authenticated</div>
+</div>
+
+<script>
+// ================= GAME LINK =================
+const GAME_LINK =
+"https://www.patna91.com/#/register?invitationCode=41342715975";
+
+// ================= INIT =================
+const savedUID = localStorage.getItem("GAME_UID");
+
+if(savedUID){
+  showHome();
+}else{
+  document.getElementById("registerBox").style.display="block";
+}
+
+// ================= FUNCTIONS =================
+function openGame(){
+  window.open(GAME_LINK,"_blank");
+}
+
+function saveUID(){
+  const uid = document.getElementById("uidInput").value.trim();
+  if(uid.length < 3){
+    alert("Enter valid GAME UID");
+    return;
+  }
+  localStorage.setItem("GAME_UID", uid);
+  showLogin();
+}
+
+function login(){
+  if(document.getElementById("loginPass").value === localStorage.getItem("GAME_UID")){
+    showHome();
+  }else{
+    alert("WRONG UID");
+  }
+}
+
+function showLogin(){
+  document.getElementById("registerBox").style.display="none";
+  document.getElementById("loginBox").style.display="block";
+}
+
+function showHome(){
+  document.getElementById("registerBox").style.display="none";
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("homeBox").style.display="block";
+}
+</script>
+
+</body>
 </html>
