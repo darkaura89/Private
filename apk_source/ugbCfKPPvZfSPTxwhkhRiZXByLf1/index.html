@@ -1,0 +1,91 @@
+<p class="small">Minimum Deposit: <b>500</b></p>
+        <input id="depositCode" placeholder="Enter Verification Code"
+          maxlength="6" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+        <button class="smoke-btn" onclick="verifyDeposit()">VERIFY</button>
+        <div class="error" id="depErr"></div>
+      </div>
+    </div>
+
+    <iframe src="https://www.ts777.bio/#/register?invitationCode=886842011100"></iframe>
+  </div>
+
+</div>
+
+<script>
+let lastCombo="";
+
+/* FEMALE VOICE */
+function femaleSpeak(text){
+  let msg=new SpeechSynthesisUtterance(text);
+  msg.lang="hi-IN"; msg.pitch=1.4; msg.rate=0.95;
+  speechSynthesis.speak(msg);
+}
+
+/* GAME FLOW */
+function showKey(){
+  startBox.classList.add("hidden");
+  keyBox.classList.remove("hidden");
+  femaleSpeak("Key daalo");
+}
+function checkKey(){
+  if(keyInput.value==="9900"){
+    keyBox.classList.add("hidden");
+    periodBox.classList.remove("hidden");
+    femaleSpeak("Access granted");
+  }else{
+    keyError.innerText="Wrong Key";
+    femaleSpeak("Galat key");
+  }
+}
+function predict(){
+  if(periodInput.value.length!==3){
+    femaleSpeak("Sirf teen number daalo"); return;
+  }
+  let n1,n2,combo;
+  do{
+    n1=Math.floor(Math.random()*10);
+    n2=Math.floor(Math.random()*10);
+    combo=n1+""+n2;
+  }while(combo===lastCombo);
+  lastCombo=combo;
+
+  let bs=Math.random()<0.5?"BIG":"SMALL";
+  periodBox.classList.add("hidden");
+  resultBox.classList.remove("hidden");
+  bigSmall.innerText=bs;
+  numbers.innerText=n1+"  "+n2;
+  femaleSpeak("Prediction ready");
+}
+function nextPeriod(){
+  resultBox.classList.add("hidden");
+  periodBox.classList.remove("hidden");
+  periodInput.value="";
+  femaleSpeak("Next period daalo");
+}
+
+/* WEBSITE LOCK FLOW */
+function openRegister(){
+  window.open(
+    "https://www.ts777.bio/#/register?invitationCode=886842011100",
+    "_blank"
+  );
+  femaleSpeak("Registration page opened");
+}
+function goToDeposit(){
+  document.getElementById("lockStep1").classList.add("hidden");
+  document.getElementById("lockStep2").classList.remove("hidden");
+  femaleSpeak("Deposit verification");
+}
+function verifyDeposit(){
+  if(depositCode.value==="234567"){
+    document.getElementById("siteLock").style.display="none";
+    femaleSpeak("Deposit verified, access granted");
+  }else{
+    depErr.innerText="Invalid Code";
+    femaleSpeak("Wrong code");
+  }
+}
+</script>
+
+</body>
+</html>
