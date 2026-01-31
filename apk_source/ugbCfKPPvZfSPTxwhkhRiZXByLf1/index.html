@@ -1,89 +1,112 @@
-<p class="small">Minimum Deposit: <b>500</b></p>
-        <input id="depositCode" placeholder="Enter Verification Code"
-          maxlength="6" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
-        <button class="smoke-btn" onclick="verifyDeposit()">VERIFY</button>
-        <div class="error" id="depErr"></div>
-      </div>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>VIP AURA</title>
+
+<style>
+body{
+    background:#ffb6c1;
+    font-family:Arial;
+    text-align:center;
+}
+h1{color:#c71585;}
+button{
+    padding:15px 25px;
+    margin:10px;
+    border:none;
+    border-radius:8px;
+    font-size:18px;
+    background:#ff1493;
+    color:white;
+}
+input{
+    padding:10px;
+    font-size:18px;
+    width:140px;
+    text-align:center;
+}
+.result{
+    margin-top:15px;
+    font-size:22px;
+    font-weight:bold;
+}
+#panel,#free{display:none;}
+</style>
+</head>
+
+<body>
+
+<h1>VIP AURA</h1>
+
+<div id="main">
+    <button onclick="openPanel()">Number Panel</button>
+    <button onclick="openFree()">Free Access</button>
+</div>
+
+<!-- Number Panel -->
+<div id="panel">
+    <h3>Enter Key</h3>
+    <input id="key" placeholder="Enter Key"><br>
+    <button onclick="checkKey()">Submit</button>
+
+    <div id="numberArea" style="display:none;">
+        <h3>Enter 3 Digit Number</h3>
+        <input id="num" maxlength="3"
+         oninput="this.value=this.value.replace(/[^0-9]/g,'')"><br>
+        <button onclick="getResult()">Get Results</button>
+        <div id="result" class="result"></div>
     </div>
+</div>
 
-    <iframe src="https://www.ts777.bio/#/register?invitationCode=886842011100"></iframe>
-  </div>
-
+<!-- Free Access -->
+<div id="free">
+    <h3>Color Prediction</h3>
+    <button onclick="colorResult()">Predict Color</button>
+    <div id="color" class="result"></div>
 </div>
 
 <script>
-let lastCombo="";
-
-/* FEMALE VOICE */
-function femaleSpeak(text){
-  let msg=new SpeechSynthesisUtterance(text);
-  msg.lang="hi-IN"; msg.pitch=1.4; msg.rate=0.95;
-  speechSynthesis.speak(msg);
+function openPanel(){
+    document.getElementById("main").style.display="none";
+    document.getElementById("panel").style.display="block";
 }
 
-/* GAME FLOW */
-function showKey(){
-  startBox.classList.add("hidden");
-  keyBox.classList.remove("hidden");
-  femaleSpeak("Key daalo");
+function openFree(){
+    document.getElementById("main").style.display="none";
+    document.getElementById("free").style.display="block";
 }
+
 function checkKey(){
-  if(keyInput.value==="9900"){
-    keyBox.classList.add("hidden");
-    periodBox.classList.remove("hidden");
-    femaleSpeak("Access granted");
-  }else{
-    keyError.innerText="Wrong Key";
-    femaleSpeak("Galat key");
-  }
-}
-function predict(){
-  if(periodInput.value.length!==3){
-    femaleSpeak("Sirf teen number daalo"); return;
-  }
-  let n1,n2,combo;
-  do{
-    n1=Math.floor(Math.random()*10);
-    n2=Math.floor(Math.random()*10);
-    combo=n1+""+n2;
-  }while(combo===lastCombo);
-  lastCombo=combo;
-
-  let bs=Math.random()<0.5?"BIG":"SMALL";
-  periodBox.classList.add("hidden");
-  resultBox.classList.remove("hidden");
-  bigSmall.innerText=bs;
-  numbers.innerText=n1+"  "+n2;
-  femaleSpeak("Prediction ready");
-}
-function nextPeriod(){
-  resultBox.classList.add("hidden");
-  periodBox.classList.remove("hidden");
-  periodInput.value="";
-  femaleSpeak("Next period daalo");
+    let k=document.getElementById("key").value;
+    if(k==="TITANJI"){
+        document.getElementById("numberArea").style.display="block";
+    }else{
+        speechSynthesis.speak(
+          new SpeechSynthesisUtterance("Galat key")
+        );
+        alert("Wrong Key");
+    }
 }
 
-/* WEBSITE LOCK FLOW */
-function openRegister(){
-  window.open(
-    "https://www.ts777.bio/#/register?invitationCode=886842011100",
-    "_blank"
-  );
-  femaleSpeak("Registration page opened");
+function getResult(){
+    let r=document.getElementById("result");
+    r.innerHTML="Server Contact...";
+    setTimeout(()=>{
+        let a=Math.floor(Math.random()*10);
+        let b=Math.floor(Math.random()*10);
+        let bs=(a+b)>=10?"BIG":"SMALL";
+        r.innerHTML=`Numbers: ${a} , ${b}<br>${bs}`;
+    },5000);
 }
-function goToDeposit(){
-  document.getElementById("lockStep1").classList.add("hidden");
-  document.getElementById("lockStep2").classList.remove("hidden");
-  femaleSpeak("Deposit verification");
-}
-function verifyDeposit(){
-  if(depositCode.value==="234567"){
-    document.getElementById("siteLock").style.display="none";
-    femaleSpeak("Deposit verified, access granted");
-  }else{
-    depErr.innerText="Invalid Code";
-    femaleSpeak("Wrong code");
-  }
+
+function colorResult(){
+    let c=document.getElementById("color");
+    c.innerHTML="Server Contact...";
+    setTimeout(()=>{
+        let res=Math.random()>0.5?"GREEN":"RED";
+        c.innerHTML=res;
+    },5000);
 }
 </script>
 
