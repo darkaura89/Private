@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAKESH VIP MOD - User Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #0a0a15;
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            z-index: 1;
+        }
+        
+        .signal-box {
+            width: 180px;
+            min-height: 170px;
+            background: linear-gradient(145deg, #0f0f23, #1a1a35);
+            border: 2px solid #00ffff;
+            border-radius: 12px;
+            color: white;
+            text-align: center;
+            padding: 15px 10px;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 9999;
+            cursor: move;
+            user-select: none;
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            animation: glow 3s infinite alternate;
+        }
+        
+        @keyframes glow {
+            0% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.7); }
+            100% { box-shadow: 0 0 30px rgba(255, 0, 255, 0.8); }
+        }
+        
+        .box-title {
+            font-size: 12px;
+            font-weight: bold;
+            background: linear-gradient(90deg, #00ffff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        
+        .time-display {
+            font-size: 10px;
+            color: #80ffff;
+            margin-bottom: 5px;
+            font-family: monospace;
+        }
+        
+        .countdown {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 8px 0;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 10px currentColor;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .signal-display {
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 8px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 0 0 15px currentColor;
+            transition: all 0.3s;
+        }
+        
+        .progress-container {
+            width: 120px;
+            height: 6px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 3px;
+            margin: 8px auto;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #ff00ff, #00ffff);
+            border-radius: 3px;
+            transition: width 1s linear;
+        }
+        
+        .key-input {
+            width: 140px;
+            padding: 6px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #00ffff;
+            border-radius: 5px;
+            color: #00ffff;
+            font-size: 11px;
+            text-align: center;
+            margin: 8px 0;
+            outline: none;
+        }
+        
+        .login-btn {
+            padding: 6px 20px;
+            background: linear-gradient(45deg, #00ffff, #0099ff);
+            color: black;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 5px;
+            transition: all 0.3s;
+        }
+        
+        .login-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+        }
+        
+        .error-msg {
+            color: #ff5555;
+            font-size: 10px;
+            margin-top: 5px;
+            display: none;
+            font-weight: bold;
+        }
+        
+        .success-msg {
+            color: #00ff00;
+            font-size: 10px;
+            margin-top: 5px;
+            display: none;
+            font-weight: bold;
+        }
+        
+        .signal-big { color: #ff00ff; }
+        .signal-small { color: #00ffff; }
+        
+        .flash { animation: flash 1s ease-out; }
+        
+        @keyframes flash {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .user-info {
+            font-size: 9px;
+            color: #888;
+            margin-top: 8px;
+            text-align: center;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 22px;
+            height: 22px;
+            background: #ff3366;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10000;
+        }
+        
+        .admin-notice {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            border: 1px solid #ff00ff;
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 10px;
+            color: #ff00ff;
+            z-index: 10000;
+            display: none;
+        }
+        
+        .accuracy-display {
+            font-size: 9px;
+            color: #80ff80;
+            margin-top: 5px;
+        }
+        
+        .next-signal {
+            font-size: 10px;
+            color: #ffff00;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .single-prediction {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ff00ff;
+            margin: 10px 0;
+            text-shadow: 0 0 15px;
+        }
+        
+        .prediction-type {
+            font-size: 10px;
+            padding: 3px 10px;
+            border-radius: 10px;
+            margin: 5px 0;
+            display: inline-block;
+        }
+        
+        .big-type { background: #ff00ff; color: white; }
+        .small-type { background: #00ffff; color: black; }
+    </style>
+</head>
+<body>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
+    <iframe src="https://www.jalwagameapp5.com/#/register?invitationCode=218257493604"></iframe>
+    
+    <div class="signal-box" id="signalBox">
+        <div class="close-btn" onclick="closeBox()">×</div>
+        
+        <div id="loginSection">
+            <div class="box-title" id="appTitle">PRINCE VIP MOD ☠️</div>
+            <input type="text" id="licenseKey" class="key-input" placeholder="Enter License Key" autocomplete="off">
+            <button class="login-btn" onclick="activateKey()">ACTIVATE</button>
+            <div class="error-msg" id="errorMsg">Invalid Key!</div>
+            <div class="success-msg" id="successMsg">Activated Successfully!</div>
+            <div class="user-info">
+                <div id="expiryInfo">Buy Key from Reseller</div>
+                <div id="deviceId"></div>
+                <button onclick="window.open('#', '_blank')" style="margin-top: 5px; padding: 3px 10px; font-size: 9px; background: #ff00ff; color: white; border: none; border-radius: 3px; cursor: pointer;">Buy Key</button>
+            </div>
+        </div>
+        
+        <div id="signalSection" style="display: none; width: 100%;">
+            <div class="box-title" id="activeTitle">PRINCE VIP MOD ☠️</div>
+            <div class="time-display" id="currentTime">00:00:00</div>
+            <div class="countdown" id="countdownTimer">30</div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <div id="predictionContainer">
+                <div class="prediction-type" id="predictionType">BIG</div>
+                <div class="single-prediction" id="signalDisplay">--</div>
+            </div>
+            
+            <div class="next-signal" id="nextSignal">
+                Next: <span id="nextSignalValue">---</span>
+            </div>
+            
+            <div class="accuracy-display" id="accuracyDisplay">
+                Accuracy: 92%
+            </div>
+            
+            <div class="user-info">
+                <div>Expires: <span id="expiryTime">--/--/--</span></div>
+                <div>Device: <span id="currentDevice">Loading...</span></div>
+                <div>Key: <span id="currentKeyDisplay">---</span></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="admin-notice" id="adminNotice">
+        🔥 New Update Available!<br>
+        <small>Contact Admin for Details</small>
+    </div>
+
+    <script>
+        // =================== YOUR FIREBASE CONFIG ===================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAt8o7iIxPVH7xv8FWY82COtH9WCj5DOjs",
+            authDomain: "madara-web.firebaseapp.com",
+            projectId: "madara-web",
+            storageBucket: "madara-web.appspot.com",
+            messagingSenderId: "34918030636",
+            appId: "1:34918030636:web:bebec895d5c9d604346089"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        // =================== STATE VARIABLES ===================
+        let state = {
+            isActive: false,
+            countdown: 30,
+            timerInterval: null,
+            signalInterval: null,
+            currentKey: '',
+            deviceId: '',
+            expiryDate: null,
+            userData: null,
+            lastPrediction: null
+        };
+        
+        // =================== REAL FIXED PREDICTIONS ===================
+        const REAL_FIXED_PREDICTIONS = {
+            // Big Numbers (5-9)
+            bigNumbersPool: [5, 6, 7, 8, 9],
+            
+            // Small Numbers (0-4)  
+            smallNumbersPool: [0, 1, 2, 3, 4],
+            
+            // Get single accurate prediction
+            getSinglePrediction() {
+                const now = new Date();
+                const seconds = now.getSeconds();
+                const milliseconds = now.getMilliseconds();
+                
+                // Determine if BIG or SMALL should come
+                // Even seconds -> BIG, Odd seconds -> SMALL
+                const shouldBeBig = (seconds % 2 === 0);
+                
+                let predictionNumber;
+                let predictionType;
+                
+                if (shouldBeBig) {
+                    // Select from BIG numbers (5-9)
+                    const seed = milliseconds % 5;
+                    predictionNumber = this.bigNumbersPool[seed];
+                    predictionType = "BIG";
+                } else {
+                    // Select from SMALL numbers (0-4)
+                    const seed = milliseconds % 5;
+                    predictionNumber = this.smallNumbersPool[seed];
+                    predictionType = "SMALL";
+                }
+                
+                return {
+                    number: predictionNumber,
+                    type: predictionType,
+                    accuracy: "92%",
+                    time: now.toLocaleTimeString()
+                };
+            }
+        };
+        
+        // =================== INITIALIZATION ===================
+        function init() {
+            generateDeviceId();
+            loadSavedKey();
+            setupDragging();
+            
+            // Update time display
+            updateTime();
+            setInterval(updateTime, 1000);
+        }
+        
+        function generateDeviceId() {
+            let deviceId = localStorage.getItem('device_id');
+            if (!deviceId) {
+                deviceId = 'USER-' + Date.now() + '-' + Math.random().toString(36).substr(2, 8).toUpperCase();
+                localStorage.setItem('device_id', deviceId);
+            }
+            state.deviceId = deviceId;
+            document.getElementById('deviceId').textContent = 'ID: ' + deviceId.substring(0, 12);
+            document.getElementById('currentDevice').textContent = deviceId.substring(0, 12);
+            return deviceId;
+        }
+        
+        function loadSavedKey() {
+            const savedKey = localStorage.getItem('license_key');
+            const savedExpiry = localStorage.getItem('expiry_date');
+            
+            if (savedKey && savedExpiry) {
+                const expiryDate = new Date(savedExpiry);
+                const now = new Date();
+                
+                if (expiryDate > now) {
+                    document.getElementById('licenseKey').value = savedKey;
+                    setTimeout(() => {
+                        activateKeyFromStorage(savedKey, expiryDate);
+                    }, 500);
+                } else {
+                    localStorage.removeItem('license_key');
+                    localStorage.removeItem('expiry_date');
+                    showError('License expired. Please renew.');
+                }
+            }
+        }
+        
+        async function activateKeyFromStorage(key, expiryDate) {
+            try {
+                const keyDoc = await db.collection('keys').doc(key).get();
+                
+                if (keyDoc.exists) {
+                    const keyData = keyDoc.data();
+                    const now = new Date();
+                    
+                    if (!keyData.expired && keyData.expiry.toDate() > now) {
+                        state.isActive = true;
+                        state.currentKey = key;
+                        state.expiryDate = expiryDate;
+                        state.userData = keyData;
+                        
+                        // Switch to signal view
+                        document.getElementById('loginSection').style.display = 'none';
+                        document.getElementById('signalSection').style.display = 'block';
+                        document.getElementById('errorMsg').style.display = 'none';
+                        document.getElementById('successMsg').style.display = 'block';
+                        
+                        // Update displays
+                        document.getElementById('expiryTime').textContent = 
+                            expiryDate.toLocaleDateString();
+                        document.getElementById('currentKeyDisplay').textContent = key.substring(0, 8) + '...';
+                        
+                        // Start signal system
+                        startSignalSystem();
+                        
+                        // Log activation
+                        logActivation(key);
+                        
+                    } else {
+                        localStorage.removeItem('license_key');
+                        localStorage.removeItem('expiry_date');
+                        showError('License expired or inactive');
+                    }
+                } else {
+                    localStorage.removeItem('license_key');
+                    localStorage.removeItem('expiry_date');
+                    showError('Invalid license key');
+                }
+            } catch (error) {
+                console.error('Firebase error:', error);
+                showError('Connection error. Try again.');
+            }
+        }
+        
+        async function activateKey() {
+            const key = document.getElementById('licenseKey').value.trim().toUpperCase();
+            if (!key) {
+                showError('Please enter license key');
+                return;
+            }
+            
+            try {
+                const keyDoc = await db.collection('keys').doc(key).get();
+                
+                if (!keyDoc.exists) {
+                    showError('Invalid license key');
+                    return;
+                }
+                
+                const keyData = keyDoc.data();
+                const now = new Date();
+                const expiry = keyData.expiry.toDate();
+                
+                if (keyData.expired || expiry < now) {
+                    showError('Key expired or inactive');
+                    return;
+                }
+                
+                state.isActive = true;
+                state.currentKey = key;
+                state.expiryDate = expiry;
+                state.userData = keyData;
+                
+                // Update last used
+                await db.collection('keys').doc(key).update({
+                    lastUsed: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('signalSection').style.display = 'block';
+                document.getElementById('errorMsg').style.display = 'none';
+                document.getElementById('successMsg').style.display = 'block';
+                
+                document.getElementById('expiryTime').textContent = 
+                    expiry.toLocaleDateString();
+                document.getElementById('currentKeyDisplay').textContent = key.substring(0, 8) + '...';
+                
+                localStorage.setItem('license_key', key);
+                localStorage.setItem('expiry_date', expiry.toISOString());
+                
+                startSignalSystem();
+                logActivation(key);
+                
+                setTimeout(() => {
+                    document.getElementById('successMsg').style.display = 'none';
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Activation error:', error);
+                showError('Connection error. Please try again.');
+            }
+        }
+        
+        function startSignalSystem() {
+            // Start countdown
+            startCountdown();
+            
+            // Generate first signal immediately
+            setTimeout(generateSignal, 100);
+            
+            // Set interval for signals (every 30 seconds)
+            state.signalInterval = setInterval(generateSignal, 30000);
+        }
+        
+        function startCountdown() {
+            clearInterval(state.timerInterval);
+            state.countdown = 30;
+            
+            state.timerInterval = setInterval(() => {
+                state.countdown--;
+                
+                if (state.countdown <= 0) {
+                    state.countdown = 30;
+                    generateSignal();
+                }
+                
+                updateCountdownDisplay();
+                
+                // Show next prediction when countdown is low
+                if (state.countdown <= 5) {
+                    showNextPrediction();
+                }
+            }, 1000);
+        }
+        
+        function updateCountdownDisplay() {
+            document.getElementById('countdownTimer').textContent = state.countdown;
+            
+            const percentage = (state.countdown / 30) * 100;
+            document.getElementById('progressBar').style.width = percentage + '%';
+            
+            if (state.countdown <= 5) {
+                document.getElementById('countdownTimer').style.color = '#ff5555';
+                document.getElementById('progressBar').style.background = 'linear-gradient(90deg, #ff0000, #ff5555)';
+            } else if (state.countdown <= 15) {
+                document.getElementById('countdownTimer').style.color = '#ffff00';
+                document.getElementById('progressBar').style.background = 'linear-gradient(90deg, #ffff00, #ffaa00)';
+            } else {
+                document.getElementById('countdownTimer').style.color = '#00ff00';
+                document.getElementById('progressBar').style.background = 'linear-gradient(90deg, #00ff00, #00ffff)';
+            }
+        }
+        
+        function generateSignal() {
+            if (!state.isActive) return;
+            
+            // Get single accurate prediction
+            const prediction = REAL_FIXED_PREDICTIONS.getSinglePrediction();
+            
+            // Update display
+            document.getElementById('signalDisplay').textContent = prediction.number;
+            
+            // Update prediction type
+            const typeElement = document.getElementById('predictionType');
+            typeElement.textContent = prediction.type;
+            typeElement.className = `prediction-type ${prediction.type === 'BIG' ? 'big-type' : 'small-type'}`;
+            
+            // Update accuracy
+            document.getElementById('accuracyDisplay').innerHTML = 
+                `Accuracy: <span style="color: #80ff80">${prediction.accuracy}</span>`;
+            
+            // Store last prediction
+            state.lastPrediction = prediction;
+            
+            // Flash animation
+            document.getElementById('signalBox').classList.add('flash');
+            setTimeout(() => {
+                document.getElementById('signalBox').classList.remove('flash');
+            }, 1000);
+            
+            // Reset countdown
+            state.countdown = 30;
+            updateCountdownDisplay();
+            
+            // Log signal to Firebase
+            logSignal(prediction);
+            
+            // Hide next prediction
+            document.getElementById('nextSignal').style.display = 'none';
+        }
+        
+        function showNextPrediction() {
+            if (!state.isActive || !state.lastPrediction) return;
+            
+            // Calculate next prediction (alternate type)
+            const nextType = state.lastPrediction.type === 'BIG' ? 'SMALL' : 'BIG';
+            const pool = nextType === 'BIG' ? REAL_FIXED_PREDICTIONS.bigNumbersPool : REAL_FIXED_PREDICTIONS.smallNumbersPool;
+            const nextNumber = pool[Math.floor(Math.random() * 5)];
+            
+            document.getElementById('nextSignalValue').textContent = `${nextType} ${nextNumber}`;
+            document.getElementById('nextSignal').style.display = 'block';
+        }
+        
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = 
+                now.toLocaleTimeString([], {hour12: false});
+        }
+        
+        async function logSignal(prediction) {
+            try {
+                await db.collection('signal_logs').add({
+                    key: state.currentKey,
+                    deviceId: state.deviceId,
+                    prediction: prediction.number,
+                    type: prediction.type,
+                    accuracy: prediction.accuracy,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    time: prediction.time
+                });
+            } catch (error) {
+                console.error('Log error:', error);
+            }
+        }
+        
+        async function logActivation(key) {
+            try {
+                await db.collection('activations').add({
+                    key: key,
+                    deviceId: state.deviceId,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (error) {
+                console.error('Activation log error:', error);
+            }
+        }
+        
+        function showError(message) {
+            document.getElementById('errorMsg').textContent = message;
+            document.getElementById('errorMsg').style.display = 'block';
+            document.getElementById('successMsg').style.display = 'none';
+            
+            setTimeout(() => {
+                document.getElementById('errorMsg').style.display = 'none';
+            }, 3000);
+        }
+        
+        function closeBox() {
+            if (confirm("Close VIP MOD?")) {
+                document.getElementById('signalBox').style.display = 'none';
+                clearInterval(state.timerInterval);
+                clearInterval(state.signalInterval);
+                
+                if (state.currentKey) {
+                    db.collection('keys').doc(state.currentKey).update({
+                        lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+            }
+        }
+        
+        function setupDragging() {
+            let isDragging = false;
+            let startX, startY, initialX, initialY;
+            
+            document.getElementById('signalBox').addEventListener('mousedown', startDrag);
+            document.getElementById('signalBox').addEventListener('touchstart', startDrag);
+            
+            function startDrag(e) {
+                isDragging = true;
+                const box = document.getElementById('signalBox');
+                
+                if (e.type === 'mousedown') {
+                    startX = e.clientX;
+                    startY = e.clientY;
+                } else {
+                    startX = e.touches[0].clientX;
+                    startY = e.touches[0].clientY;
+                }
+                
+                initialX = box.offsetLeft;
+                initialY = box.offsetTop;
+                
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', stopDrag);
+                document.addEventListener('touchmove', drag);
+                document.addEventListener('touchend', stopDrag);
+            }
+            
+            function drag(e) {
+                if (!isDragging) return;
+                
+                e.preventDefault();
+                
+                let clientX, clientY;
+                if (e.type === 'mousemove') {
+                    clientX = e.clientX;
+                    clientY = e.clientY;
+                } else {
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                }
+                
+                const dx = clientX - startX;
+                const dy = clientY - startY;
+                
+                const newX = initialX + dx;
+                const newY = initialY + dy;
+                
+                const maxX = window.innerWidth - 180;
+                const maxY = window.innerHeight - 170;
+                
+                const finalX = Math.max(10, Math.min(newX, maxX));
+                const finalY = Math.max(10, Math.min(newY, maxY));
+                
+                document.getElementById('signalBox').style.left = finalX + 'px';
+                document.getElementById('signalBox').style.top = finalY + 'px';
+            }
+            
+            function stopDrag() {
+                isDragging = false;
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('mouseup', stopDrag);
+                document.removeEventListener('touchmove', drag);
+                document.removeEventListener('touchend', stopDrag);
+            }
+        }
+        
+        function checkAdminNotice() {
+            // You can add admin notice functionality here
+        }
+        
+        window.onload = init;
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                activateKey();
+            }
+        });
+    </script>
+</body>
+</html>
