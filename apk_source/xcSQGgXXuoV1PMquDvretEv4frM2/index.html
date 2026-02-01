@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BS GOLD PRO - MOBILE VIP</title>
+    <style>
+        :root { --neon: #00ff00; --glow: 0 0 20px #00ff00; }
+        * { -webkit-user-select: none; user-select: none; box-sizing: border-box; margin: 0; padding: 0; }
+        body, html { width: 100%; height: 100%; background: #000; font-family: 'Arial', sans-serif; overflow: hidden; }
+
+        /* --- Splash Screen --- */
+        #flash-page { position: fixed; width: 100%; height: 100%; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+        .flash-logo { width: 140px; height: 140px; border-radius: 50%; background: url('https://i.ibb.co/KcC8d58p/download-7.jpg') center/cover; border: 3px solid var(--neon); box-shadow: var(--glow); animation: pulse 1.5s infinite; }
+        .loader-bar { width: 180px; height: 4px; background: #222; margin-top: 25px; border-radius: 10px; overflow: hidden; }
+        .loader-fill { width: 0%; height: 100%; background: var(--neon); animation: fill 3s forwards; }
+
+        /* --- Game Area --- */
+        #game-area { width: 100%; height: 100%; display: none; }
+        iframe { width: 100%; height: 100%; border: none; }
+
+        /* --- Floating Button --- */
+        #float-btn { 
+            position: fixed; bottom: 35px; left: 20px; width: 55px; height: 55px; 
+            background: url('https://i.ibb.co/KcC8d58p/download-7.jpg') center/cover; 
+            border: 2px solid var(--neon); border-radius: 50%; box-shadow: var(--glow); 
+            z-index: 999; 
+        }
+
+        /* --- Mobile Style Hack Panel --- */
+        #hack-panel {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
+            width: 290px; background: rgba(10,10,10,0.95); border: 2px solid var(--neon);
+            border-radius: 20px; padding: 15px; text-align: center; z-index: 1001;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: var(--glow);
+        }
+        #hack-panel.active { transform: translate(-50%, -50%) scale(1); }
+        .hack-header { color: var(--neon); font-size: 1.1rem; font-weight: 900; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 8px; }
+        
+        /* Time Options (Mobile Layout) */
+        .time-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+        .time-btn { background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .time-btn.active { background: var(--neon); color: #000; border-color: var(--neon); }
+
+        .result-screen { 
+            background: #000; border: 1px solid #222; border-radius: 12px; 
+            height: 70px; display: flex; align-items: center; justify-content: center;
+            margin-bottom: 15px; font-size: 1.8rem; font-weight: 900;
+        }
+
+        .action-btn {
+            width: 100%; padding: 15px; background: var(--neon); color: #000;
+            border: none; border-radius: 10px; font-weight: 900; cursor: pointer;
+            box-shadow: 0 0 10px rgba(0,255,0,0.3); text-transform: uppercase;
+        }
+
+        @keyframes fill { to { width: 100%; } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    </style>
+</head>
+<body>
+
+    <div id="flash-page">
+        <div class="flash-logo"></div>
+        <div class="loader-bar"><div class="loader-fill"></div></div>
+        <p style="color:var(--neon); margin-top:15px; font-weight:bold; font-size: 12px;">BS GOLD PRO LOADING...</p>
+    </div>
+
+    <div id="game-area">
+        <iframe src="https://www.92star3.com/#/register?invitationCode=12713786999"></iframe>
+        <div id="float-btn" onclick="toggleHack()"></div>
+    </div>
+
+    <div id="hack-panel">
+        <div class="hack-header">PREDICTOR MOBILE</div>
+        
+        <div class="time-grid">
+            <div class="time-btn active" onclick="selectTime(this)">30 SEC</div>
+            <div class="time-btn" onclick="selectTime(this)">1 MIN</div>
+            <div class="time-btn" onclick="selectTime(this)">3 MIN</div>
+            <div class="time-btn" onclick="selectTime(this)">5 MIN</div>
+        </div>
+
+        <div class="result-screen" id="res-box" style="color:#222;">WAITING</div>
+
+        <button class="action-btn" onclick="runHack()">GET RESULT</button>
+        
+        <p onclick="toggleHack()" style="color:#444; font-size:11px; margin-top:12px; cursor:pointer;">[ CLOSE PANEL ]</p>
+    </div>
+
+    <script>
+        // Splash to Game
+        setTimeout(() => {
+            document.getElementById('flash-page').style.display = 'none';
+            document.getElementById('game-area').style.display = 'block';
+        }, 3000);
+
+        function toggleHack() {
+            document.getElementById('hack-panel').classList.toggle('active');
+        }
+
+        function selectTime(btn) {
+            document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        function runHack() {
+            const box = document.getElementById('res-box');
+            box.style.color = "#444";
+            box.innerText = "WAIT...";
+            
+            setTimeout(() => {
+                const results = ["BIG", "SMALL", "RED", "GREEN"];
+                const win = results[Math.floor(Math.random() * results.length)];
+                
+                let textColor = "var(--neon)";
+                if(win === "RED") textColor = "#ff3b3b";
+                if(win === "SMALL") textColor = "#00e5ff";
+
+                box.style.color = textColor;
+                box.innerText = win;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
