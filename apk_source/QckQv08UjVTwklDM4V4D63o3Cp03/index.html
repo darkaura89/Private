@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MR. KING | NEURAL ENGINE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=JetBrains+Mono:wght@500&family=Goldman:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --purple: #bc13fe; --cyan: #00f2ff; --gold: #ffac09; --red: #ff003c; --green: #39ff14;
+            --panel-bg: #050508;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { 
+            background-color: #000; color: white; font-family: 'JetBrains Mono', monospace; 
+            height: 100vh; width: 100vw; overflow: hidden; display: flex; justify-content: center; align-items: center;
+        }
+        
+        /* SPLASH SCREEN */
+        #splash {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 9999; display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; transition: 0.8s;
+        }
+        .splash-logo { font-family: 'Syncopate'; font-size: 2.2rem; background: linear-gradient(45deg, #fff, var(--purple), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: pulse 1.5s infinite alternate; }
+        @keyframes pulse { from { transform: scale(0.95); opacity: 0.6; } to { transform: scale(1.05); opacity: 1; } }
+
+        /* MAIN UI */
+        #main-app { display: none; width: 100%; height: 100%; justify-content: center; align-items: center; background-image: radial-gradient(rgba(188, 19, 254, 0.1) 1px, transparent 1px); background-size: 25px 25px; }
+        .terminal {
+            width: 96%; height: 98vh; max-width: 420px; background: var(--panel-bg); border: 1px solid #1a1a1a;
+            position: relative; display: flex; flex-direction: column; padding: 12px;
+            clip-path: polygon(0 3%, 3% 0, 97% 0, 100% 3%, 100% 97%, 97% 100%, 3% 100%, 0 97%);
+            box-shadow: 0 0 50px rgba(0,0,0,1);
+        }
+
+        .header h1 { text-align: center; font-family: 'Syncopate'; font-size: 1.1rem; margin-bottom: 8px; background: linear-gradient(to right, #fff, var(--purple), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 2px; }
+        
+        .sync-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+        .card { background: #000; border: 1px solid #222; padding: 6px; text-align: center; border-radius: 4px; border-bottom: 2px solid var(--purple); }
+        .tag { font-size: 0.5rem; color: #666; text-transform: uppercase; display: block; }
+        .val { font-family: 'Goldman'; font-size: 0.75rem; color: var(--cyan); }
+
+        /* CORE ENGINE */
+        .engine-room { position: relative; height: 160px; display: flex; justify-content: center; align-items: center; }
+        svg { position: absolute; transform: rotate(-90deg); }
+        circle { fill: none; stroke-width: 5; stroke-linecap: round; transition: 0.1s linear; }
+
+        .core-display { width: 85px; height: 85px; background: #000; border: 2px solid #111; border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 10; box-shadow: inset 0 0 20px rgba(188, 19, 254, 0.2); }
+        #res { font-family: 'Goldman'; font-size: 1.2rem; color: #111; }
+
+        /* LEVELS */
+        .lvl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 10px; }
+        .lvl-box { background: #08080a; border: 1px solid #1a1a1a; padding: 8px 2px; font-size: 0.55rem; text-align: center; color: #444; border-radius: 4px; }
+        .lvl-box.active { border-color: var(--gold); color: var(--gold); background: rgba(255, 172, 9, 0.05); }
+
+        /* HISTORY FIX */
+        .history-title { font-size: 0.6rem; color: var(--purple); margin-bottom: 6px; display: flex; justify-content: space-between; font-weight: bold; border-bottom: 1px solid #222; padding-bottom: 3px; }
+        .logs-container { flex: 1; overflow-y: auto; scrollbar-width: none; }
+        .logs-container::-webkit-scrollbar { display: none; }
+
+        .log-entry { 
+            background: rgba(255,255,255,0.02); border: 1px solid #111; padding: 8px 12px; margin-bottom: 6px;
+            display: grid; grid-template-columns: 1fr 1fr auto; align-items: center;
+            border-left: 3px solid #333; animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+        .log-node { font-size: 0.6rem; color: #aaa; }
+        .log-res-badge { font-family: 'Goldman'; font-size: 0.75rem; padding: 2px 8px; border-radius: 3px; min-width: 65px; text-align: center; }
+
+        /* BUTTONS */
+        .btn-exe { width: 100%; padding: 15px; background: var(--purple); color: #fff; font-family: 'Syncopate'; font-size: 0.75rem; border: none; font-weight: 700; border-radius: 6px; box-shadow: 0 4px 15px rgba(188, 19, 254, 0.3); }
+        .btn-exe:disabled { background: #1a1a1a; color: #444; box-shadow: none; }
+        
+        .tg-btn { width: 100%; padding: 12px; background: #0088cc; color: #fff; font-family: 'Goldman'; font-size: 0.7rem; margin-top: 10px; border: none; border-radius: 6px; text-align: center; text-decoration: none; display: block; box-shadow: 0 4px 10px rgba(0, 136, 204, 0.3); }
+    </style>
+</head>
+<body onload="boot()">
+
+    <div id="splash">
+        <div class="splash-logo">MR. KING</div>
+        <div style="font-size: 0.5rem; color: #444; margin-top: 20px; letter-spacing: 3px;">Connecting to Secure Channel...</div>
+    </div>
+
+    <div id="main-app">
+        <div class="terminal">
+            <div class="header"><h1>NEURAL ENGINE</h1></div>
+
+            <div class="sync-row">
+                <div class="card"><span class="tag">Node ID</span><div id="p-id" class="val">----------</div></div>
+                <div class="card"><span class="tag">Sync</span><div id="t-id" class="val" style="color:var(--gold)">00:00</div></div>
+            </div>
+
+            <div class="engine-room">
+                <svg width="180" height="180">
+                    <circle id="r1" cx="90" cy="90" r="80" stroke="var(--purple)" stroke-dasharray="502" stroke-dashoffset="502"></circle>
+                    <circle id="r2" cx="90" cy="90" r="70" stroke="var(--cyan)" stroke-dasharray="440" stroke-dashoffset="440"></circle>
+                    <circle id="r3" cx="90" cy="90" r="60" stroke="var(--gold)" stroke-dasharray="377" stroke-dashoffset="377"></circle>
+                    <circle id="r4" cx="90" cy="90" r="50" stroke="var(--red)" stroke-dasharray="314" stroke-dashoffset="314"></circle>
+                    <circle id="r5" cx="90" cy="90" r="40" stroke="var(--green)" stroke-dasharray="251" stroke-dashoffset="251"></circle>
+                </svg>
+                <div class="core-display"><div id="res">READY</div></div>
+            </div>
+
+            <div class="lvl-grid">
+                <div class="lvl-box" id="l0">L1: 3</div><div class="lvl-box" id="l1">L2: 6</div><div class="lvl-box" id="l2">L3: 18</div>
+                <div class="lvl-box" id="l3">L4: 54</div><div class="lvl-box" id="l4">L5: 162</div><div class="lvl-box" id="l5">L6: 486</div>
+            </div>
+
+            <div class="history-title">
+                <span>CHANNEL DATA STREAM</span>
+                <span style="color:#333" id="total-logs">0 LOGS</span>
+            </div>
+            <div class="logs-container" id="logs"></div>
+
+            <button id="btn" class="btn-exe" onclick="scan()">START NEURAL SCAN</button>
+            <a href="javascript:void(0)" class="tg-btn" onclick="openChannel()">ACCESS PREMIUM CHANNEL</a>
+        </div>
+    </div>
+
+    <script>
+        // Encrypted URL logic
+        const _enc = "aHR0cHM6Ly90Lm1lLytReXBBRHFjM0trdGogWVQx";
+        function openChannel() { window.location.href = atob(_enc).replace(/\s/g, ''); }
+
+        let curLvl = 0; let lastP = ""; let locked = false; let logCount = 0;
+
+        function boot() {
+            setTimeout(() => {
+                document.getElementById('splash').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('splash').style.display = 'none';
+                    document.getElementById('main-app').style.display = 'flex';
+                }, 800);
+            }, 3000);
+        }
+
+        function scan() {
+            if(locked) return;
+            const btn = document.getElementById('btn');
+            const res = document.getElementById('res');
+            btn.disabled = true; btn.innerText = "SCANNING...";
+            
+            [1,2,3,4,5].forEach((i) => {
+                let p = 0; let c = 2 * Math.PI * (80 - (i-1)*10);
+                let ring = document.getElementById('r'+i);
+                ring.style.strokeDasharray = c;
+                let int = setInterval(() => {
+                    p += (1.8 + i);
+                    ring.style.strokeDashoffset = c - (p/100)*c;
+                    if(p >= 100) clearInterval(int);
+                }, 25);
+            });
+
+            setTimeout(() => {
+                const isB = Math.random() >= 0.5;
+                const rText = isB ? "BIG" : "SMALL";
+                const color = isB ? "var(--gold)" : "var(--cyan)";
+                res.innerText = rText; res.style.color = color;
+                res.style.textShadow = `0 0 15px ${color}`;
+
+                logCount++;
+                document.getElementById('total-logs').innerText = `${logCount} LOGS`;
+                const now = new Date();
+                const timeStr = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0') + ":" + now.getSeconds().toString().padStart(2,'0');
+                
+                const log = document.createElement('div');
+                log.className = "log-entry";
+                log.style.borderLeftColor = color;
+                log.innerHTML = `
+                    <div class="log-node">ID:${lastP.slice(-3)}</div>
+                    <div style="font-size:0.5rem; color:#555">${timeStr}</div>
+                    <div class="log-res-badge" style="color:${color}; border:1px solid ${color}">${rText}</div>
+                `;
+                document.getElementById('logs').prepend(log);
+
+                for(let i=0; i<6; i++) document.getElementById('l'+i).classList.remove('active');
+                document.getElementById('l'+curLvl).classList.add('active');
+                curLvl = (curLvl + 1) % 6; locked = true; btn.innerText = "LOCKED";
+            }, 2000);
+        }
+
+        setInterval(() => {
+            const now = new Date(); const s = now.getSeconds(); const rem = 60 - s;
+            const p = now.getFullYear() + (now.getMonth()+1).toString().padStart(2,'0') + now.getDate().toString().padStart(2,'0') + "1000" + (now.getHours()*60 + now.getMinutes());
+            document.getElementById('p-id').innerText = p;
+            document.getElementById('t-id').innerText = `00:${rem.toString().padStart(2,'0')}`;
+            if(lastP !== p) {
+                lastP = p; locked = false;
+                document.getElementById('btn').disabled = false; document.getElementById('btn').innerText = "START NEURAL SCAN";
+                document.getElementById('res').innerText = "READY"; document.getElementById('res').style.color = "#111";
+                [1,2,3,4,5].forEach(i => document.getElementById('r'+i).style.strokeDashoffset = "502");
+                if(s < 2) curLvl = 0;
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
