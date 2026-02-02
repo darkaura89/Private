@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4444 Mod Panel</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+    height:100vh;
+    overflow:hidden;
+    font-family:'Orbitron',sans-serif;
+    background:
+      radial-gradient(circle at top left, #0a1a2f, #020812),
+      linear-gradient(135deg, #00ffd522, #0066ff22);
+    color:#00ffcc;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+/* Crystal Canvas */
+#crystal{
+    position:fixed;
+    inset:0;
+    z-index:-2;
+}
+
+/* Login Card */
+#loginPage{
+    background:rgba(10,20,30,.85);
+    border-radius:18px;
+    padding:30px;
+    border:1px solid #00ffcc55;
+    box-shadow:0 0 40px #00ffcc44;
+    text-align:center;
+    z-index:5;
+}
+
+input{
+    width:220px;
+    padding:10px;
+    margin-bottom:15px;
+    background:#000;
+    border:1px solid #00ffcc;
+    color:#00ffcc;
+    border-radius:8px;
+    text-align:center;
+}
+
+button{
+    padding:12px 25px;
+    margin:5px;
+    border-radius:8px;
+    border:1px solid #00ffcc;
+    background:transparent;
+    color:#00ffcc;
+    cursor:pointer;
+    transition:.3s;
+}
+
+button:hover{
+    background:#00ffcc;
+    color:#000;
+}
+
+#errorMessage{
+    display:none;
+    color:#ff4444;
+    margin-top:10px;
+}
+
+#startBtn{
+    display:none;
+    position:fixed;
+    bottom:20px;
+}
+
+/* Timer Box */
+#timerBox{
+    display:none;
+    position:fixed;
+    width:360px;
+    height:300px;
+    background:rgba(0,15,25,.9);
+    border-radius:20px;
+    border:1px solid #00ffcc66;
+    box-shadow:0 0 35px #00ffcc44;
+    padding:20px;
+    text-align:center;
+}
+
+#randomWord{
+    font-size:2em;
+    margin-top:18px;
+    color:#ffaa00;
+    animation:blink 1s infinite;
+}
+
+@keyframes blink{
+    50%{opacity:.5}
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="crystal"></canvas>
+
+<div id="loginPage">
+    <h2>ENTER PAID KEY</h2>
+    <input id="keyInput" placeholder="Enter Access Key">
+    <br>
+    <button onclick="checkKey()">Submit</button>
+    <button onclick="buyKey()">Buy Key</button>
+    <div id="errorMessage">Invalid Key</div>
+</div>
+
+<button id="startBtn" onclick="toggleTimerBox()">Start Hack</button>
+
+<div id="timerBox">
+    <button onclick="toggleTimerBox()">✖</button>
+    <h3>RITESH PANEL</h3>
+    <div id="period1m"></div>
+    <div id="timer1m"></div>
+    <div id="randomWord">WAIT...</div>
+</div>
+
+<script>
+/* ===== CRYSTAL FLOW ===== */
+const canvas = document.getElementById("crystal");
+const ctx = canvas.getContext("2d");
+
+function resize(){
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+}
+resize();
+addEventListener("resize", resize);
+
+const particles = Array.from({length:120},()=>({
+    x:Math.random()*canvas.width,
+    y:Math.random()*canvas.height,
+    r:Math.random()*2+1,
+    s:Math.random()*0.6+0.3
+}));
+
+function animate(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p=>{
+        ctx.beginPath();
+        ctx.fillStyle="rgba(0,255,220,.6)";
+        ctx.shadowColor="#00ffcc";
+        ctx.shadowBlur=8;
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fill();
+
+        p.y -= p.s;
+        p.x += Math.sin(p.y*0.008);
+        if(p.y<0){p.y=canvas.height;p.x=Math.random()*canvas.width;}
+    });
+    requestAnimationFrame(animate);
+}
+animate();
+
+/* ===== LOGIN ===== */
+function checkKey(){
+    if(keyInput.value==="@FREE1"){
+        loginPage.style.display="none";
+        startBtn.style.display="block";
+    }else errorMessage.style.display="block";
+}
+
+function buyKey(){
+    location.href="https://t.me/+eQHLq9nWOUQ4ZGY1";
+}
+
+/* ===== TIMER + WAIT → ANALYSIS → RESULT ===== */
+let interval;
+let lastMinute = -1;
+let phase = "WAIT"; // WAIT | ANALYSIS | RESULT
+let analysisStep = 0;
+
+function toggleTimerBox(){
+    timerBox.style.display =
+    timerBox.style.display==="block"?"none":"block";
+    if(!interval) startTimer();
+}
+
+function startTimer(){
+interval=setInterval(()=>{
+    const now=new Date();
+    const sec=now.getUTCSeconds();
+    const totalMin=now.getUTCHours()*60+now.getUTCMinutes();
+
+    const d=
+      now.getUTCFullYear()+
+      String(now.getUTCMonth()+1).padStart(2,"0")+
+      String(now.getUTCDate()).padStart(2,"0");
+
+    period1m.innerText=d+"1000"+(10001+totalMin);
+    timer1m.innerText="00 : "+String(60-sec).padStart(2,"0");
+
+    if(sec===0 && lastMinute!==totalMin){
+        lastMinute=totalMin;
+        phase="WAIT";
+        analysisStep=0;
+        randomWord.innerText="WAIT...";
+    }
+
+    /* AFTER 5 SECONDS → ANALYSIS */
+    if(sec===5 && phase==="WAIT"){
+        phase="ANALYSIS";
+        randomWord.innerText="ANALYSING PATTERN";
+    }
+
+    /* ANALYSIS ANIMATION */
+    if(phase==="ANALYSIS"){
+        analysisStep++;
+        randomWord.innerText=
+          "ANALYSING PATTERN" + ".".repeat(analysisStep%4);
+    }
+
+    /* RESULT AT 20 SEC */
+    if(sec===20 && phase==="ANALYSIS"){
+        phase="RESULT";
+        randomWord.innerText=Math.random()>0.5?"BIG":"SMALL";
+        randomWord.style.color="#ff4444";
+    }
+
+},1000);
+}
+</script>
+
+</body>
+</html>
