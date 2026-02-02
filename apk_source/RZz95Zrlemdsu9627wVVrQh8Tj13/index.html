@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHAKIB VIP - BIG/SMALL HACK</title>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; background: #000; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
+        #particles-js { position: absolute; width: 100%; height: 100%; z-index: 1; }
+
+        /* Login System */
+        #login-screen {
+            position: relative; z-index: 10; display: flex; justify-content: center; align-items: center; height: 100vh;
+        }
+        .login-card {
+            background: rgba(15, 15, 15, 0.95); padding: 40px; border-radius: 20px;
+            border: 2px solid #ffcc00; text-align: center; width: 320px; box-shadow: 0 0 20px #ffcc0044;
+        }
+
+        /* Main UI Design */
+        #main-ui {
+            display: none; position: relative; z-index: 10; flex-direction: column;
+            justify-content: center; align-items: center; height: 100vh;
+        }
+        .mod-card {
+            background: rgba(0, 0, 0, 0.98); width: 350px; border-radius: 30px;
+            border: 3px solid #ffcc00; padding: 25px; text-align: center;
+            box-shadow: 0 0 40px rgba(255, 204, 0, 0.5);
+        }
+
+        .header { color: #ffcc00; font-size: 26px; font-weight: 900; letter-spacing: 1px; }
+        .timer { font-size: 55px; color: #ffcc00; font-weight: bold; margin: 10px 0; font-family: monospace; }
+        
+        /* Prediction Area */
+        .prediction-box {
+            background: #111; padding: 20px; border-radius: 15px; margin: 15px 0;
+            border: 1px dashed #ffcc00;
+        }
+        #result-text { font-size: 35px; color: #fff; font-weight: bold; text-transform: uppercase; }
+
+        .stats {
+            display: flex; justify-content: space-around; margin-bottom: 20px;
+        }
+        .win { color: #2ecc71; font-weight: bold; }
+        .loss { color: #e74c3c; font-weight: bold; }
+
+        input {
+            width: 100%; padding: 12px; margin: 15px 0; border-radius: 8px;
+            border: 1px solid #ffcc00; background: #111; color: #fff; text-align: center;
+        }
+
+        .btn {
+            width: 100%; padding: 15px; border-radius: 12px; border: none;
+            background: #ffcc00; color: #000; font-weight: bold; cursor: pointer;
+            font-size: 16px; margin-top: 10px; transition: 0.3s;
+        }
+        .btn:active { transform: scale(0.95); }
+        .btn-game { background: transparent; border: 2px solid #ffcc00; color: #ffcc00; margin-top: 15px; }
+
+        .active-tag { color: #2ecc71; font-size: 12px; margin-top: 15px; display: block; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0.5; } }
+    </style>
+</head>
+<body>
+
+    <div id="particles-js"></div>
+
+    <div id="login-screen">
+        <div class="login-card">
+            <h2 style="color:#ffcc00">SHAKIB VIP</h2>
+            <p style="color:#aaa">Access Key Required</p>
+            <input type="password" id="pass" placeholder="Enter Password">
+            <button class="btn" onclick="login()">LOGIN</button>
+        </div>
+    </div>
+
+    <div id="main-ui">
+        <div class="mod-card">
+            <div class="header">SHAKIB VIP</div>
+            <div class="timer" id="timer">30s</div>
+            
+            <div class="prediction-box">
+                <div style="color: #aaa; font-size: 12px;">NEXT PREDICTION</div>
+                <div id="result-text">WAITING...</div>
+            </div>
+
+            <div class="stats">
+                <div class="win">WIN: <span id="winCount">0</span></div>
+                <div class="loss">LOSS: <span id="lossCount">0</span></div>
+            </div>
+
+            <button class="btn" onclick="activateHack()">ACTIVATE BIG/SMALL HACK</button>
+            <button class="btn btn-game" onclick="openGame()">OPEN DKWIN GAME</button>
+            
+            <span class="active-tag">● HACK SYSTEM ACTIVE ON DKWIN</span>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        // 1. Login Function
+        function login() {
+            const p = document.getElementById('pass').value;
+            if(p === "12345") {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-ui').style.display = 'flex';
+                startTimer();
+            } else {
+                alert("Wrong Password!");
+            }
+        }
+
+        // 2. Timer Logic
+        let timeLeft = 30;
+        function startTimer() {
+            setInterval(() => {
+                timeLeft--;
+                if(timeLeft < 0) {
+                    timeLeft = 30;
+                    // Auto-refresh prediction every 30s if active
+                    if(document.getElementById('result-text').innerText !== "WAITING...") {
+                        activateHack();
+                    }
+                }
+                document.getElementById('timer').innerText = (timeLeft < 10 ? '0' : '') + timeLeft + 's';
+            }, 1000);
+        }
+
+        // 3. Big/Small Hack Activation
+        function activateHack() {
+            const resultDisplay = document.getElementById('result-text');
+            resultDisplay.innerText = "SCANNING...";
+            resultDisplay.style.color = "#ffcc00";
+
+            setTimeout(() => {
+                const results = ["BIG", "SMALL"];
+                const finalResult = results[Math.floor(Math.random() * results.length)];
+                resultDisplay.innerText = finalResult;
+                resultDisplay.style.color = (finalResult === "BIG") ? "#f1c40f" : "#3498db";
+                
+                // Update Win Counter for Visual Effect
+                let currentWins = parseInt(document.getElementById('winCount').innerText);
+                document.getElementById('winCount').innerText = currentWins + 1;
+            }, 1500);
+        }
+
+        // 4. Game Link
+        function openGame() {
+            window.open("https://dkwin9.com/#/register?invitationCode=12453111468", "_blank");
+        }
+
+        // 5. Background Particles
+        particlesJS("particles-js", {
+            "particles": {
+                "number": { "value": 90 },
+                "color": { "value": "#ffcc00" },
+                "shape": { "type": "circle" },
+                "opacity": { "value": 0.3 },
+                "size": { "value": 3 },
+                "line_linked": { "enable": true, "distance": 150, "color": "#ffcc00", "opacity": 0.2, "width": 1 },
+                "move": { "enable": true, "speed": 2 }
+            }
+        });
+    </script>
+</body>
+</html>
