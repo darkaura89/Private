@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>DARK CYBER — ADMIN PANEL</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+
+    <style>
+        :root{
+            --primary: #ff4d4d;
+            --accent: #00bcd4;
+            --bg-dark: #0e0e11;
+            --bg-light: #1e1e24;
+            --text: #ffffff;
+            --success: #4caf50;
+            --warning: #ffeb3b;
+            --danger: #f44336;
+        }
+        *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
+        body{
+            background:var(--bg-dark);color:var(--text);padding:20px;
+            display: flex;justify-content: center;align-items: flex-start;min-height: 100vh;
+        }
+        /* Particles Container */
+        #particles-js{
+            position:fixed;left:0;top:0;width:100%;height:100%;z-index:0;
+            background:linear-gradient(180deg,var(--bg-dark) 0%, #1a1a20 100%);
+        }
+        .container{
+            width:100%;max-width:800px;
+            position:relative; 
+            z-index:2; 
+        }
+        h1{text-align:center;color:var(--primary);margin-bottom:20px;}
+        .card{
+            background:var(--bg-light);border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 4px 15px rgba(0,0,0,0.4);
+            position:relative; z-index:2; 
+        }
+        .card h2{color:var(--accent);margin-bottom:15px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:10px;}
+        .form-group{margin-bottom:15px;}
+        .form-group label{display:block;margin-bottom:5px;font-weight:600;}
+        .form-group input, .form-group select{
+            width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);
+            background:rgba(0,0,0,0.3);color:var(--text);font-size:16px;
+        }
+        .time-inputs {
+            display: flex;
+            gap: 10px;
+        }
+        .time-inputs > div {
+            flex: 1; 
+            min-width: 0;
+        }
+        .time-inputs input[type="number"] {
+            text-align: center;
+            padding-right: 5px; 
+        }
+
+        .btn{
+            padding:10px 15px;border:none;border-radius:8px;font-weight:700;cursor:pointer;
+            transition:background 0.2s;width:100%;font-size:16px;margin-top:10px;
+        }
+        .btn-primary{background:var(--primary);color:var(--text);}
+        .btn-primary:hover{background:#d63f3f;}
+        
+        /* Key List Styling */
+        #keyHistory{width:100%;border-collapse:collapse;margin-top:15px;}
+        #keyHistory th,#keyHistory td{
+            padding:12px 10px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.1);
+            font-size:14px;
+        }
+        #keyHistory th{background:rgba(0,0,0,0.3);color:var(--accent);}
+        .status-badge{padding:4px 8px;border-radius:5px;font-weight:700;font-size:12px;}
+        .status-active{background:var(--success);}
+        .status-expired{background:var(--danger);}
+        .status-deactivated{background:var(--warning);color:#000;}
+
+        .action-btn{
+            padding:6px 10px;border-radius:5px;margin:2px;font-size:12px;font-weight:600;
+        }
+        .action-delete{background:var(--danger);color:var(--text);}
+        .action-deactivate{background:var(--warning);color:#000;}
+        .action-delete:hover{background:#c0392b;}
+        .action-deactivate:hover{background:#f1c40f;}
+
+        /* Login Modal (Ensure it's above particles) */
+        #loginModal{
+            position:fixed;left:0;top:0;width:100%;height:100%;
+            display:flex;justify-content:center;align-items:center;z-index:10; 
+        }
+        .login-box{
+            width:90%;max-width:300px;background:var(--bg-light);padding:30px;
+            border-radius:12px;text-align:center;box-shadow:0 0 20px rgba(0,0,0,0.7);
+            position:relative; z-index:2; 
+        }
+        .login-box h2{color:var(--primary);margin-bottom:20px;}
+        .logout-btn{float:right;background:#555;width:auto; position:relative; z-index:3;} 
+        .logout-btn:hover{background:#333;}
+    </style>
+</head>
+<body onload="checkAdminLogin()">
+
+    <div id="particles-js"></div> 
+
+    <div id="loginModal">
+        <div class="login-box">
+            <h2>Admin Login</h2>
+            <div class="form-group"><input type="text" id="usernameInput" placeholder="Username" /></div>
+            <div class="form-group"><input type="password" id="passwordInput" placeholder="Password" /></div>
+            <button class="btn btn-primary" id="loginBtn">Login</button>
+        </div>
+    </div>
+
+    <div class="container" id="adminContent" style="display:none;">
+        <button class="btn logout-btn" id="logoutBtn">Logout</button>
+        <h1>DARK CYBER - ADMIN PANEL</h1>
+
+        <div class="card">
+            <h2>Generate New VIP Key</h2>
+            <div id="statusMessage" style="color:var(--success); margin-bottom:10px;"></div>
+            
+            <div class="form-group">
+                <label>Key Duration:</label>
+                <div class="time-inputs">
+                    <div>
+                        <input type="number" id="durationDays" min="0" value="0" placeholder="Days" />
+                        <label style="font-size:12px;margin-top:3px;text-align:center;">Days</label>
+                    </div>
+                    <div>
+                        <input type="number" id="durationHours" min="0" max="24" value="24" placeholder="Hours" />
+                        <label style="font-size:12px;margin-top:3px;text-align:center;">Hours</label>
+                    </div>
+                    <div>
+                        <input type="number" id="durationMinutes" min="0" max="60" value="0" placeholder="Minutes" />
+                        <label style="font-size:12px;margin-top:3px;text-align:center;">Minutes</label>
+                    </div>
+                    <div>
+                        <input type="number" id="durationSeconds" min="0" max="60" value="0" placeholder="Seconds" />
+                        <label style="font-size:12px;margin-top:3px;text-align:center;">Seconds</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="deviceLimit">Device Limit:</label>
+                <select id="deviceLimit">
+                    <option value="unlimited" selected>Unlimited Devices</option>
+                    <option value="1">1 Device</option>
+                    <option value="2">2 Devices</option>
+                    <option value="3">3 Devices</option>
+                    <option value="5">5 Devices</option>
+                    <option value="10">10 Devices</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" id="generateKeyBtn">GENERATE KEY</button>
+        </div>
+
+        <div class="card">
+            <h2>VIP Key History</h2>
+            <div style="overflow-x:auto;">
+                <table id="keyHistory">
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Status</th>
+                            <th>Devices</th>
+                            <th>Expires</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Particle Initialization (Matching Index.html's Premium Look)
+        particlesJS("particles-js", {
+            "particles": {
+                "number": {"value": 70, "density": {"enable": true, "value_area": 800}},
+                "color": {"value": ["#00ffff", "#ff00ff", "#f6d365", "#ffffff"]}, 
+                "shape": {"type": "circle"},
+                "opacity": {"value": 0.5, "anim": {"enable": false}},
+                "size": {"value": 3, "random": true},
+                "line_linked": {"enable": true, "distance": 150, "color": "#0a84ff", "opacity": 0.35, "width": 1},
+                "move": {"enable": true, "speed": 1.5, "direction": "none", "random": false, "straight": false, "out_mode": "out"}
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": {"onhover": {"enable": true, "mode": "grab"}, "onclick": {"enable": true, "mode": "push"}},
+                "modes": {"grab": {"distance": 140, "line_linked": {"opacity": 1}}, "push": {"particles_nb": 4}}
+            },
+            "retina_detect": true
+        });
+
+        // --- ADMIN CONFIGURATION ---
+        const ADMIN_USERNAME = "DARK"; 
+        const ADMIN_PASSWORD = "123"; 
+
+        // *************************************************************
+// YAHA PE APNA FIREBASE CONFIGURATION PAIST KARE👇
+  
+        const firebaseConfig = {
+‎  apiKey: "AIzaSyC-tR84gd4AGbHdaGCFt5-AoOB5BirzIQE",
+‎  authDomain: "admin-eac5b.firebaseapp.com",
+‎  databaseURL: "https://admin-eac5b-default-rtdb.firebaseio.com",
+‎  projectId: "admin-eac5b",
+‎  storageBucket: "admin-eac5b.firebasestorage.app",
+‎  messagingSenderId: "688573102712",
+‎  appId: "1:688573102712:web:a46e2f18ccf116e4984b8d",
+‎  measurementId: "G-DVMM4Q45LE"
+‎};
+        // FIREBASE CONFIGURATION END
+        // *************************************************************
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const vipCodesRef = database.ref('vip_codes');
+        
+        // --- AUTHENTICATION LOGIC ---
+        function checkAdminLogin() {
+            if (sessionStorage.getItem('isAdminLoggedIn') === 'true') {
+                document.getElementById('loginModal').style.display = 'none';
+                document.getElementById('adminContent').style.display = 'block';
+                loadKeyHistory();
+            } else {
+                document.getElementById('loginModal').style.display = 'flex';
+                document.getElementById('adminContent').style.display = 'none';
+            }
+        }
+
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            const user = document.getElementById('usernameInput').value;
+            const pass = document.getElementById('passwordInput').value;
+
+            if (user === ADMIN_USERNAME && pass === ADMIN_PASSWORD) {
+                sessionStorage.setItem('isAdminLoggedIn', 'true');
+                checkAdminLogin();
+            } else {
+                alert('Invalid Credentials!');
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            sessionStorage.removeItem('isAdminLoggedIn');
+            checkAdminLogin();
+        });
+        
+        // --- KEY MANAGEMENT LOGIC ---
+        
+        function generateRandomCode() {
+            return Math.floor(100000 + Math.random() * 900000).toString(); 
+        }
+
+        document.getElementById('generateKeyBtn').addEventListener('click', () => {
+            const days = parseInt(document.getElementById('durationDays').value) || 0;
+            const hours = parseInt(document.getElementById('durationHours').value) || 0;
+            const minutes = parseInt(document.getElementById('durationMinutes').value) || 0;
+            const seconds = parseInt(document.getElementById('durationSeconds').value) || 0;
+            
+            const deviceLimitInput = document.getElementById('deviceLimit').value;
+            let deviceLimit;
+
+            // Handle 'unlimited' value
+            if (deviceLimitInput === 'unlimited') {
+                deviceLimit = 'unlimited'; 
+            } else {
+                deviceLimit = parseInt(deviceLimitInput); 
+            }
+
+            const newCode = generateRandomCode();
+            const now = Date.now();
+            
+            const totalDurationMs = 
+                (days * 24 * 60 * 60 * 1000) + 
+                (hours * 60 * 60 * 1000) + 
+                (minutes * 60 * 1000) + 
+                (seconds * 1000); 
+
+            if (totalDurationMs <= 0) {
+                 document.getElementById('statusMessage').innerHTML = `<span style="color:var(--danger);">❌ Duration must be greater than zero!</span>`;
+                 return;
+            }
+
+            const expiryTimestamp = now + totalDurationMs; 
+
+            const keyData = {
+                createdAt: now,
+                expiryTimestamp: expiryTimestamp,
+                durationMs: totalDurationMs, 
+                deviceLimit: deviceLimit, // Will be 'unlimited' or a number
+                activeCount: 0,
+                isManuallyExpired: false, 
+                activatedDevices: {}
+            };
+
+            vipCodesRef.child(newCode).set(keyData)
+                .then(() => {
+                    document.getElementById('statusMessage').innerHTML = `<span style="color:var(--success);">✅ Key Generated! Code: <b>${newCode}</b></span>`;
+                    loadKeyHistory(); 
+                })
+                .catch(error => {
+                    document.getElementById('statusMessage').innerHTML = `<span style="color:var(--danger);">❌ Error: ${error.message}</span>`;
+                });
+        });
+
+        // --- KEY HISTORY AND ACTIONS ---
+
+        function loadKeyHistory() {
+            const tableBody = document.querySelector('#keyHistory tbody');
+            tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Loading keys...</td></tr>';
+
+            vipCodesRef.on('value', (snapshot) => {
+                tableBody.innerHTML = '';
+                const keys = snapshot.val();
+                const now = Date.now();
+                
+                if (!keys) {
+                    tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No VIP keys found.</td></tr>';
+                    return;
+                }
+
+                const sortedKeys = Object.entries(keys).sort(([, a], [, b]) => b.createdAt - a.createdAt);
+                
+                sortedKeys.forEach(([code, data]) => {
+                    const isExpired = now > data.expiryTimestamp;
+                    let statusClass = 'status-active';
+                    let statusText = 'ACTIVE';
+
+                    if (data.isManuallyExpired) {
+                        statusClass = 'status-deactivated';
+                        statusText = 'DEACTIVATED';
+                    } else if (isExpired) {
+                        statusClass = 'status-expired';
+                        statusText = 'EXPIRED';
+                    }
+                    
+                    const expiryDate = new Date(data.expiryTimestamp).toLocaleString();
+                    const activeCount = data.activeCount || 0;
+                    
+                    // Logic to display UNLIMITED
+                    const deviceCounterText = data.deviceLimit === 'unlimited' ? `${activeCount} / ∞` : `${activeCount} / ${data.deviceLimit}`;
+                    
+                    const row = tableBody.insertRow();
+                    row.innerHTML = `
+                        <td><b>${code}</b></td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>${deviceCounterText}</td>
+                        <td>${expiryDate}</td>
+                        <td>
+                            <button class="action-btn action-deactivate" data-code="${code}" data-action="deactivate" ${data.isManuallyExpired || isExpired ? 'disabled' : ''}>
+                                Deactivate
+                            </button>
+                            <button class="action-btn action-delete" data-code="${code}" data-action="delete">
+                                Delete
+                            </button>
+                        </td>
+                    `;
+                });
+
+                tableBody.querySelectorAll('.action-btn').forEach(button => {
+                    button.addEventListener('click', handleKeyAction);
+                });
+            });
+        }
+
+        // --- ADMIN ACTIONS (Manual Delete/Deactivate) ---
+        function handleKeyAction(event) {
+            const button = event.target;
+            const code = button.getAttribute('data-code');
+            const action = button.getAttribute('data-action');
+
+            if (action === 'delete') {
+                if (confirm(`Are you sure you want to permanently DELETE key ${code}?`)) {
+                    vipCodesRef.child(code).remove()
+                        .then(() => {
+                            alert(`Key ${code} deleted successfully.`);
+                        })
+                        .catch(error => {
+                            alert(`Error deleting key: ${error.message}`);
+                        });
+                }
+            } else if (action === 'deactivate') {
+                if (confirm(`Are you sure you want to MANUALLY DEACTIVATE key ${code}? This will stop all current users.`)) {
+                    vipCodesRef.child(code).update({ isManuallyExpired: true })
+                        .then(() => {
+                            alert(`Key ${code} deactivated successfully.`);
+                        })
+                        .catch(error => {
+                            alert(`Error deactivating key: ${error.message}`);
+                        });
+                }
+            }
+        }
+
+    </script>
+</body>
+</html>
