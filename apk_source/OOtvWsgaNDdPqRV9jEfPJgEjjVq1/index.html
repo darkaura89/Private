@@ -3,227 +3,266 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Realistic 3D Racing Pro</title>
+    <title>Elite Bridge Racer - Loading Fixed</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; touch-action: none; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #0a0a1a; font-family: 'Segoe UI', sans-serif; touch-action: none; color: white; }
         
-        /* Neon UI */
-        #ui {
-            position: absolute; top: 20px; width: 100%; display: flex; 
-            justify-content: space-around; pointer-events: none; z-index: 10;
-        }
-        .stat-box {
-            background: rgba(0,0,0,0.8); color: #fff; padding: 10px 20px;
-            border-radius: 20px; font-size: 18px; font-weight: bold;
-            border: 2px solid #00d2ff; box-shadow: 0 0 10px #00d2ff;
-        }
+        /* Loading Screen Fix */
+        #loader { position: absolute; width: 100%; height: 100%; background: #050510; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 2000; }
+        #load-bar { width: 250px; height: 12px; background: #222; border-radius: 10px; margin-top: 20px; border: 1px solid #444; overflow: hidden; }
+        #load-fill { width: 0%; height: 100%; background: #ffd700; box-shadow: 0 0 15px #ffd700; }
 
-        #game-over {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.95); color: white; padding: 40px;
-            border-radius: 20px; text-align: center; display: none; z-index: 100;
-            border: 2px solid #ff0055;
-        }
-        button {
-            margin-top: 20px; padding: 12px 30px; font-size: 18px;
-            background: #00d2ff; border: none; border-radius: 10px; font-weight: bold;
-        }
+        /* UI Overlays */
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 900; background: rgba(0,0,0,0.85); text-align: center; }
+        .btn-ui { width: 220px; padding: 16px; margin: 8px; font-size: 18px; font-weight: bold; background: #39FF14; border: none; border-radius: 12px; color: black; cursor: pointer; box-shadow: 0 6px 0 #28b80e; text-transform: uppercase; }
+        
+        /* Store Lists */
+        .store-list { width: 90%; max-width: 380px; max-height: 60vh; overflow-y: auto; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; border: 1px solid #00d2ff; margin-bottom: 20px; }
+        .store-item { background: rgba(255,255,255,0.1); padding: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border: 1px solid transparent; }
+        .store-item.selected { border-color: #39FF14; background: rgba(57, 255, 20, 0.1); }
+        .buy-btn { background: gold; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; color: black; }
+        .buy-btn.owned { background: #00d2ff; color: white; }
 
-        /* Standard Controls */
-        .controls {
-            position: absolute; bottom: 40px; width: 100%;
-            display: flex; justify-content: space-between; padding: 0 40px;
-            box-sizing: border-box; z-index: 50;
-        }
-        .btn {
-            width: 85px; height: 85px; background: rgba(255,255,255,0.1);
-            border: 3px solid #fff; border-radius: 50%; display: flex;
-            justify-content: center; align-items: center; color: white;
-            font-size: 40px; -webkit-tap-highlight-color: transparent;
-        }
+        /* Game HUD */
+        #hud { position: absolute; top: 20px; width: 100%; display: none; justify-content: space-around; z-index: 100; pointer-events: none; }
+        .hud-box { background: rgba(0,0,0,0.6); color: white; padding: 10px 20px; border-radius: 50px; border: 2px solid #00d2ff; font-weight: bold; font-size: 18px; }
+
+        /* Finish Line Message */
+        #level-msg { position: absolute; top: 40%; width: 100%; text-align: center; color: #39FF14; font-size: 40px; font-weight: bold; display: none; z-index: 1500; text-shadow: 0 0 20px #39FF14; }
+
+        /* Controls */
+        #controls { position: absolute; bottom: 40px; width: 100%; display: none; justify-content: space-between; padding: 0 40px; box-sizing: border-box; z-index: 1000; }
+        .ctrl { width: 90px; height: 90px; background: rgba(255,255,255,0.1); border: 4px solid #fff; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 40px; }
     </style>
 </head>
 <body>
 
-    <div id="ui">
-        <div class="stat-box">SCORE: <span id="score">0</span></div>
-        <div class="stat-box">🪙 <span id="coins">0</span></div>
+    <div id="loader">
+        <h1 style="letter-spacing: 5px;">PRO RACER 3D</h1>
+        <p id="l-perc">0%</p>
+        <div id="load-bar"><div id="load-fill"></div></div>
     </div>
 
-    <div id="game-over">
-        <h1 style="color:#ff0055">CRASHED!</h1>
-        <button onclick="location.reload()">RESTART</button>
+    <!-- Main Menu -->
+    <div id="main-menu" class="overlay">
+        <h1 style="color:#00d2ff; font-size: 45px; margin-bottom: 10px;">MAIN MENU</h1>
+        <p style="color:gold; font-size: 22px;">🪙 Coins: <span id="m-coins">0</span></p>
+        <button class="btn-ui" onclick="startGame()">START RACE</button>
+        <button class="btn-ui" style="background:#e67e22" onclick="showStore('car')">CAR STORE</button>
+        <button class="btn-ui" style="background:#3498db" onclick="showStore('road')">ROAD STORE</button>
     </div>
 
-    <div class="controls">
-        <div id="l-btn" class="btn">◀</div>
-        <div id="r-btn" class="btn">▶</div>
+    <div id="car-store" class="overlay">
+        <h2>GARAGE</h2>
+        <div class="store-list" id="car-list"></div>
+        <button class="btn-ui" onclick="backToMenu()">BACK</button>
     </div>
 
-    <!-- Loading Three.js the traditional way for better compatibility -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+    <div id="road-store" class="overlay">
+        <h2>ROAD STORE</h2>
+        <div class="store-list" id="road-list"></div>
+        <button class="btn-ui" onclick="backToMenu()">BACK</button>
+    </div>
+
+    <div id="hud">
+        <div class="hud-box">LVL: <span id="lvl-txt">1</span></div>
+        <div class="hud-box">SCORE: <span id="scr-txt">0</span></div>
+        <div class="hud-box">🪙 <span id="cns-txt">0</span></div>
+    </div>
+
+    <div id="level-msg">LEVEL 1 CLEARED! 🏁</div>
+
+    <div id="controls">
+        <div id="l-btn" class="ctrl">◀</div>
+        <div id="r-btn" class="ctrl">▶</div>
+    </div>
+
+    <div id="game-over" class="overlay">
+        <h1 style="color:red; font-size: 50px;">CRASHED!</h1>
+        <button class="btn-ui" onclick="location.reload()">RESTART</button>
+    </div>
+
+    <div id="game-canvas" style="width:100%; height:100%;"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script>
-        let scene, camera, renderer, playerCar;
-        let score = 0, coins = 0, isGameOver = false;
-        let enemies = [], pointItems = [], roadLines = [];
-        let moveLeft = false, moveRight = false;
-        const roadWidth = 12;
+        // --- Safe Data Loading ---
+        let totalCoins = 0, unlockedCars = ['blue'], unlockedRoads = ['asphalt', 'city'], selectedCarHex = 0x0055ff, selectedRoadIdx = 0;
+        try {
+            totalCoins = parseInt(localStorage.getItem('br_total_coins')) || 0;
+            unlockedCars = JSON.parse(localStorage.getItem('br_un_cars')) || ['blue'];
+            unlockedRoads = JSON.parse(localStorage.getItem('br_un_roads')) || ['asphalt', 'city'];
+        } catch(e) { console.log("Storage blocked, using session data."); }
 
-        function createDetailedCar(color) {
-            const group = new THREE.Group();
-            // Main body
-            const body = new THREE.Mesh(
-                new THREE.BoxGeometry(1.8, 0.6, 4),
-                new THREE.MeshStandardMaterial({ color: color, metalness: 0.7, roughness: 0.2 })
-            );
-            body.position.y = 0.6;
-            group.add(body);
+        const CAR_DATA = [
+            { id: 'blue', hex: 0x0055ff, price: 0 },
+            { id: 'red', hex: 0xff0000, price: 50 },
+            { id: 'green', hex: 0x00ff00, price: 100 }
+        ];
 
-            // Cabin
-            const cabin = new THREE.Mesh(
-                new THREE.BoxGeometry(1.4, 0.6, 1.8),
-                new THREE.MeshStandardMaterial({ color: 0x111111 })
-            );
-            cabin.position.set(0, 1.1, -0.2);
-            group.add(cabin);
+        const ROAD_DATA = [
+            { id: 'asphalt', name: 'Grey Asphalt', color: 0x444444, line: 0xffffff, rail: 0xffffff, sky: 0x87ceeb, price: 0 },
+            { id: 'city', name: 'City Highway', color: 0x222222, line: 0x00d2ff, rail: 0x7f8c8d, sky: 0x2c3e50, price: 0 },
+            { id: 'desert', name: 'Desert Pass', color: 0xc2a385, line: 0xffffff, rail: 0x8e44ad, sky: 0xffcc33, price: 50 },
+            { id: 'neon', name: 'Neon Night', color: 0x111111, line: 0x39ff14, rail: 0xff00ff, sky: 0x000000, price: 100 },
+            { id: 'lava', name: 'Lava Track', color: 0x2e0000, line: 0xff4500, rail: 0x000000, sky: 0x330000, price: 200 },
+            { id: 'ice', name: 'Ice Bridge', color: 0xadd8e6, line: 0xffffff, rail: 0x0000ff, sky: 0xebf5fb, price: 300 },
+            { id: 'forest', name: 'Green Forest', color: 0x145a32, line: 0xdeff00, rail: 0x5d4037, sky: 0x1e8449, price: 400 },
+            { id: 'cyber', name: 'Cyber Grid', color: 0x000000, line: 0x00ffff, rail: 0x00ffff, sky: 0x0a0a2a, price: 500 },
+            { id: 'royal', name: 'Royal Gold', color: 0x9a7d0a, line: 0xffffff, rail: 0xffd700, sky: 0xfef9e7, price: 800 },
+            { id: 'dark', name: 'Midnight Pro', color: 0x000000, line: 0xff0000, rail: 0xffffff, sky: 0x1a1a1a, price: 1000 }
+        ];
 
-            // Wheels
-            const wheelGeo = new THREE.CylinderGeometry(0.45, 0.45, 0.4, 16);
-            const wheelMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
-            [[-1, 0.4, 1.2], [1, 0.4, 1.2], [-1, 0.4, -1.2], [1, 0.4, -1.2]].forEach(p => {
-                const w = new THREE.Mesh(wheelGeo, wheelMat);
-                w.rotation.z = Math.PI/2;
-                w.position.set(p[0], p[1], p[2]);
-                group.add(w);
-            });
-            return group;
+        // Guaranteed Loading
+        let p = 0;
+        const loadIv = setInterval(() => {
+            p += 5;
+            if(p >= 100) { p = 100; clearInterval(loadIv); document.getElementById('loader').style.display='none'; document.getElementById('main-menu').style.display='flex'; updateMenuUI(); }
+            document.getElementById('l-perc').innerText = p + "%";
+            document.getElementById('load-fill').style.width = p + "%";
+        }, 30);
+
+        function updateMenuUI() { document.getElementById('m-coins').innerText = totalCoins; }
+
+        function showStore(type) {
+            document.getElementById('main-menu').style.display='none';
+            if(type==='car') {
+                const list = document.getElementById('car-list'); list.innerHTML = '';
+                CAR_DATA.forEach(c => {
+                    const isUn = unlockedCars.includes(c.id);
+                    list.innerHTML += `<div class="store-item"><b>${c.id.toUpperCase()}</b><button class="buy-btn ${isUn?'owned':''}" onclick="buyCar('${c.id}',${c.price},${c.hex})">${isUn?'EQUIP':'🪙 '+c.price}</button></div>`;
+                });
+                document.getElementById('car-store').style.display='flex';
+            } else {
+                const list = document.getElementById('road-list'); list.innerHTML = '';
+                ROAD_DATA.forEach((r, idx) => {
+                    const isUn = unlockedRoads.includes(r.id);
+                    list.innerHTML += `<div class="store-item ${selectedRoadIdx==idx?'selected':''}"><b>${r.name}</b><button class="buy-btn ${isUn?'owned':''}" onclick="buyRoad(${idx},${r.price},'${r.id}')">${isUn?'SELECT':'🪙 '+r.price}</button></div>`;
+                });
+                document.getElementById('road-store').style.display='flex';
+            }
         }
 
-        function init() {
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x3498db);
-            scene.fog = new THREE.Fog(0x3498db, 30, 100);
+        function buyCar(id, pr, hex) {
+            if(unlockedCars.includes(id)) { selectedCarHex = hex; backToMenu(); return; }
+            if(totalCoins >= pr) { totalCoins -= pr; unlockedCars.push(id); save(); showStore('car'); updateMenuUI(); } else alert("More coins needed!");
+        }
 
-            camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 6, 12);
-            camera.lookAt(0, 1, -5);
+        function buyRoad(idx, pr, id) {
+            if(unlockedRoads.includes(id)) { selectedRoadIdx = idx; showStore('road'); return; }
+            if(totalCoins >= pr) { totalCoins -= pr; unlockedRoads.push(id); save(); showStore('road'); updateMenuUI(); } else alert("More coins needed!");
+        }
 
+        function save() { try { localStorage.setItem('br_total_coins', totalCoins); localStorage.setItem('br_un_cars', JSON.stringify(unlockedCars)); localStorage.setItem('br_un_roads', JSON.stringify(unlockedRoads)); } catch(e){} }
+        function backToMenu() { document.querySelectorAll('.overlay').forEach(o=>o.style.display='none'); document.getElementById('main-menu').style.display='flex'; }
+
+        // --- 3D Engine ---
+        let scene, camera, renderer, playerCar, finishLine;
+        let isPlaying = false, isDead = false, finishSpawned = false, ml = false, mr = false;
+        let score = 0, sessCoins = 0, level = 1, roadLines = [], traffic = [], roadCoins = [], smoke = [], roadSpeed = 1.3;
+
+        function startGame() {
+            document.getElementById('main-menu').style.display='none';
+            document.getElementById('hud').style.display='flex';
+            document.getElementById('controls').style.display='flex';
+            isPlaying = true;
+            init3D();
+        }
+
+        function init3D() {
+            const rd = ROAD_DATA[selectedRoadIdx];
+            scene = new THREE.Scene(); scene.background = new THREE.Color(rd.sky);
+            scene.fog = new THREE.Fog(rd.sky, 30, 150);
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 10, 18); camera.lookAt(0, 2, -10);
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            document.body.appendChild(renderer.domElement);
+            document.getElementById('game-canvas').appendChild(renderer.domElement);
 
-            const light = new THREE.DirectionalLight(0xffffff, 1.5);
-            light.position.set(5, 10, 5);
-            scene.add(light);
-            scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+            scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+            const sun = new THREE.DirectionalLight(0xffffff, 1.2); sun.position.set(10, 30, 20); scene.add(sun);
 
-            // Road
-            const road = new THREE.Mesh(
-                new THREE.PlaneGeometry(roadWidth, 1000),
-                new THREE.MeshStandardMaterial({ color: 0x222222 })
-            );
-            road.rotation.x = -Math.PI/2;
-            scene.add(road);
+            const road = new THREE.Mesh(new THREE.PlaneGeometry(16, 1000), new THREE.MeshStandardMaterial({color: rd.color}));
+            road.rotation.x = -Math.PI/2; scene.add(road);
 
-            // Dashed Lines
-            for(let i=0; i<30; i++) {
-                const line = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 4), new THREE.MeshBasicMaterial({color: 0xffffff}));
-                line.rotation.x = -Math.PI/2;
-                line.position.set(0, 0.02, -i * 10);
-                roadLines.push(line);
-                scene.add(line);
+            const railMat = new THREE.MeshStandardMaterial({color: rd.rail});
+            const rl = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.2, 1000), railMat); rl.position.set(-8.2, 0.6, 0); scene.add(rl);
+            const rr = rl.clone(); rr.position.x = 8.2; scene.add(rr);
+
+            for(let i=0; i<40; i++) {
+                const l = new THREE.Mesh(new THREE.PlaneGeometry(0.4, 6), new THREE.MeshBasicMaterial({color: rd.line}));
+                l.rotation.x = -Math.PI/2; l.position.set(0, 0.05, -i*15); roadLines.push(l); scene.add(l);
             }
 
-            // Grass
-            const grass = new THREE.Mesh(new THREE.PlaneGeometry(100, 1000), new THREE.MeshStandardMaterial({color: 0x27ae60}));
-            grass.rotation.x = -Math.PI/2;
-            grass.position.y = -0.05;
-            scene.add(grass);
+            playerCar = createModel(selectedCarHex, true); scene.add(playerCar);
 
-            playerCar = createDetailedCar(0xe74c3c);
-            scene.add(playerCar);
+            document.getElementById('l-btn').onpointerdown = () => ml=true; document.getElementById('l-btn').onpointerup = () => ml=false;
+            document.getElementById('r-btn').onpointerdown = () => mr=true; document.getElementById('r-btn').onpointerup = () => mr=false;
 
-            // Controls
-            document.getElementById('l-btn').onpointerdown = () => moveLeft = true;
-            document.getElementById('l-btn').onpointerup = () => moveLeft = false;
-            document.getElementById('r-btn').onpointerdown = () => moveRight = true;
-            document.getElementById('r-btn').onpointerup = () => moveRight = false;
-
-            spawnEnemy();
-            spawnCoin();
+            spawnTraffic(); spawnCoins();
             animate();
         }
 
-        function spawnEnemy() {
-            if(isGameOver) return;
-            const enemy = createDetailedCar(Math.random() * 0xffffff);
-            enemy.rotation.y = Math.PI;
-            enemy.position.set((Math.random()-0.5)*(roadWidth-4), 0, -80);
-            enemies.push(enemy);
-            scene.add(enemy);
-            setTimeout(spawnEnemy, 1500);
+        function createModel(color, isPlayer) {
+            const g = new THREE.Group();
+            const body = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.7, 4), new THREE.MeshStandardMaterial({color: color, metalness: 0.5}));
+            body.position.y = 0.6; g.add(body);
+            const roof = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.6, 2.2), new THREE.MeshStandardMaterial({color: color}));
+            roof.position.set(0, 1.25, -0.4); g.add(roof);
+            if(isPlayer) {
+                const sign = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.4, 0.6), new THREE.MeshBasicMaterial({color: 0xffffff}));
+                sign.position.set(0, 1.7, 0.3); g.add(sign);
+                const lPart = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.3, 0.3), new THREE.MeshBasicMaterial({color: 0xff0000}));
+                lPart.position.set(0, 1.7, 0.3); g.add(lPart);
+            }
+            [[-1.1,0.4,1.4], [1.1,0.4,1.4], [-1.1,0.4,-1.4], [1.1,0.4,-1.4]].forEach(p => {
+                const w = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.4, 16), new THREE.MeshStandardMaterial({color: 0x111111}));
+                w.rotation.z = Math.PI/2; w.position.set(p[0], p[1], p[2]); g.add(w);
+            });
+            return g;
         }
 
-        function spawnCoin() {
-            if(isGameOver) return;
-            const coin = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.5, 0.5, 0.1, 16),
-                new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.8 })
-            );
-            coin.rotation.x = Math.PI/2;
-            coin.position.set((Math.random()-0.5)*(roadWidth-4), 0.8, -60);
-            pointItems.push(coin);
-            scene.add(coin);
-            setTimeout(spawnCoin, 2000);
+        function spawnTraffic() {
+            if(isDead) return;
+            const enemy = createModel(Math.random()*0xffffff, false);
+            enemy.position.set((Math.random()-0.5)*12, 0, -150); enemy.rotation.y = Math.PI;
+            traffic.push(enemy); scene.add(enemy);
+            setTimeout(spawnTraffic, 1500 - (level*50));
+        }
+
+        function spawnCoins() {
+            if(isDead) return;
+            const c = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 0.15, 20), new THREE.MeshPhongMaterial({color: 0xFFD700, emissive: 0x332200, shininess: 100}));
+            c.rotation.x = Math.PI/2; c.position.set((Math.random()-0.5)*12, 1.2, -100);
+            roadCoins.push(c); scene.add(c);
+            setTimeout(spawnCoins, 2000);
         }
 
         function animate() {
-            if(isGameOver) return;
+            if(isDead) return;
             requestAnimationFrame(animate);
+            if(ml && playerCar.position.x > -7.2) playerCar.position.x -= 0.3;
+            if(mr && playerCar.position.x < 7.2) playerCar.position.x += 0.3;
 
-            if(moveLeft && playerCar.position.x > -roadWidth/2 + 1.5) playerCar.position.x -= 0.18;
-            if(moveRight && playerCar.position.x < roadWidth/2 - 1.5) playerCar.position.x += 0.18;
+            level = Math.min(Math.floor(score / 500) + 1, 10);
+            document.getElementById('lvl-txt').innerText = level;
+            roadSpeed = 1.3 + (level * 0.1);
 
-            roadLines.forEach(l => {
-                l.position.z += 0.6;
-                if(l.position.z > 20) l.position.z = -150;
-            });
+            roadLines.forEach(l => { l.position.z += roadSpeed; if(l.position.z > 30) l.position.z = -180; });
 
-            enemies.forEach((e, i) => {
-                e.position.z += 0.5;
-                if(playerCar.position.distanceTo(e.position) < 2) {
-                    isGameOver = true;
-                    document.getElementById('game-over').style.display = 'block';
-                }
-                if(e.position.z > 20) {
-                    scene.remove(e);
-                    enemies.splice(i, 1);
-                    score += 10;
-                    document.getElementById('score').innerText = score;
-                }
-            });
+            if(level == 1 && score >= 480 && !finishSpawned) {
+                finishLine = new THREE.Mesh(new THREE.PlaneGeometry(16, 2), new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.DoubleSide}));
+                finishLine.rotation.x = -Math.PI/2; finishLine.position.z = -200; scene.add(finishLine); finishSpawned = true;
+            }
+            if(finishLine) { finishLine.position.z += roadSpeed; if(finishLine.position.z > 10) { document.getElementById('level-msg').style.display='block'; setTimeout(()=>document.getElementById('level-msg').style.display='none', 2000); finishLine.position.z = -1000; } }
 
-            pointItems.forEach((c, i) => {
-                c.position.z += 0.4;
-                c.rotation.y += 0.05;
-                if(playerCar.position.distanceTo(c.position) < 1.8) {
-                    scene.remove(c);
-                    pointItems.splice(i, 1);
-                    coins++;
-                    document.getElementById('coins').innerText = coins;
-                }
-            });
-
+            traffic.forEach((e, i) => { e.position.z += roadSpeed*0.7; if(playerCar.position.distanceTo(e.position) < 2.8) endGame(); if(e.position.z > 30) { scene.remove(e); traffic.splice(i, 1); score += 10; document.getElementById('scr-txt').innerText = score; } });
+            roadCoins.forEach((c, i) => { c.position.z += roadSpeed; c.rotation.y += 0.1; if(playerCar.position.distanceTo(c.position) < 2) { scene.remove(c); roadCoins.splice(i, 1); sessCoins++; document.getElementById('cns-txt').innerText = sessCoins; } if(c.position.z > 30) { scene.remove(c); roadCoins.splice(i, 1); } });
             renderer.render(scene, camera);
         }
 
-        window.onload = init;
-        window.onresize = () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        };
+        function endGame() { isDead = true; totalCoins += sessCoins; save(); document.getElementById('game-over').style.display='flex'; }
     </script>
 </body>
 </html>
