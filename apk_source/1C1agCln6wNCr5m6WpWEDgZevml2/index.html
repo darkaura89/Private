@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIP SERVER'S</title>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<style>
+*{box-sizing:border-box}
+body{
+    margin:0;
+    min-height:100vh;
+    font-family:'Segoe UI',Arial,sans-serif;
+    background:linear-gradient(135deg,#000428,#004e92);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color:#fff;
+}
+
+/* COMMON CARD */
+.card{
+    width:100%;
+    max-width:420px;
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(12px);
+    border-radius:18px;
+    padding:22px;
+    box-shadow:0 0 30px rgba(0,255,255,.25);
+    animation:fadeIn .6s ease;
+}
+@keyframes fadeIn{
+    from{opacity:0;transform:translateY(20px)}
+    to{opacity:1;transform:translateY(0)}
+}
+.hidden{display:none}
+.center{text-align:center}
+
+/* LOGIN */
+.logo{
+    font-size:28px;
+    font-weight:800;
+    color:#00ffff;
+    letter-spacing:1px;
+}
+.sub{
+    font-size:13px;
+    opacity:.8;
+    margin-bottom:20px;
+}
+.input{
+    width:100%;
+    padding:14px;
+    border-radius:10px;
+    border:none;
+    outline:none;
+    margin-top:12px;
+    font-size:15px;
+}
+.btn{
+    width:100%;
+    padding:14px;
+    margin-top:16px;
+    border:none;
+    border-radius:12px;
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+}
+.btn-login{
+    background:linear-gradient(90deg,#00ffff,#00c3ff);
+    color:#000;
+}
+.btn-login:active{transform:scale(.97)}
+
+/* USER PANEL */
+.title{
+    font-size:24px;
+    font-weight:800;
+    color:#ff5252;
+}
+.timer-box{
+    background:#000;
+    border-radius:14px;
+    padding:14px;
+    margin-top:12px;
+    text-align:center;
+}
+.period{
+    color:#00ff6a;
+    font-size:14px;
+}
+.timer{
+    font-size:36px;
+    font-weight:800;
+    color:#ff4d4d;
+    margin-top:4px;
+}
+.label{
+    margin-top:14px;
+    font-weight:600;
+    font-size:14px;
+}
+.prediction{
+    margin-top:10px;
+    padding:16px;
+    border-radius:14px;
+    border:2px solid #ff5252;
+    font-size:24px;
+    font-weight:800;
+    text-align:center;
+    color:#00e5ff;
+    background:rgba(0,0,0,.35);
+}
+.btn-predict{
+    background:linear-gradient(90deg,#ff1744,#ff5252);
+    color:#fff;
+}
+.btn-back{
+    background:rgba(255,255,255,.2);
+    color:#fff;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🔐 LOGIN CARD -->
+<div class="card" id="loginBox">
+    <div class="center">
+        <div class="logo">VIP SERVERS</div>
+        <div class="sub">SECURE KEY ACCESS</div>
+    </div>
+
+    <input class="input" id="keyInput" placeholder="Enter VIP Key">
+    <button class="btn btn-login" onclick="login()">UNLOCK ACCESS</button>
+</div>
+
+<!-- 🎮 USER PANEL -->
+<div class="card hidden" id="mainBox">
+    <div class="card" onclick="location.href='prediction_panel.html'">
+    
+<script>
+/* FIREBASE */
+const firebaseConfig = {
+    apiKey: "AIzaSyBYO-oEj-s26RXsWCyIArOyg54Lts7PjwQ",
+    authDomain: "hopeweb-d285e.firebaseapp.com",
+    databaseURL: "https://hopeweb-d285e-default-rtdb.firebaseio.com",
+    projectId: "hopeweb-d285e",
+    storageBucket: "hopeweb-d285e.firebasestorage.app",
+    messagingSenderId: "88573089480",
+    appId: "1:88573089480:web:ce99f49c6aa799914c37fd"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+/* LOGIN */
+function login(){
+    const key = keyInput.value.trim();
+    if(!key){alert("Key enter karo");return;}
+
+    db.ref("keys/"+key).once("value",snap=>{
+        if(snap.exists() && snap.val().active){
+            loginBox.classList.add("hidden");
+            mainBox.classList.remove("hidden");
+            startTimer();
+        }else{
+            alert("INVALID OR EXPIRED KEY ❌");
+        }
+    });
+}
+
+/* TIMER */
+let started=false;
+function startTimer(){
+    if(started) return;
+    started=true;
+
+    setInterval(()=>{
+        const n=new Date();
+        const sec=n.getUTCSeconds();
+        const rem=60-sec;
+        const totalMin=n.getUTCHours()*60+n.getUTCMinutes();
+
+        const date=
+            n.getUTCFullYear()+
+            String(n.getUTCMonth()+1).padStart(2,'0')+
+            String(n.getUTCDate()).padStart(2,'0');
+
+        const period=date+"1000"+(10001+totalMin);
+
+        periodText.innerText="PERIOD: "+period;
+        periodInput.value=period;
+        timerText.innerText="00 : "+String(rem).padStart(2,'0');
+    },1000);
+}
+
+/* PREDICTION */
+let isSmall=true;
+function getPrediction(){
+    const num=Math.floor(Math.random()*10);
+    predictionBox.innerText=(isSmall?"SMALL | ":"BIG | ")+num;
+    isSmall=!isSmall;
+}
+</script>
+
+</body>
+</html>
