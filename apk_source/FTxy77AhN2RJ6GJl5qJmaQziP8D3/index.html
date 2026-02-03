@@ -1,0 +1,3201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mickey X Web - Ultra Pro Predictor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <style>
+        :root {
+            --neon-purple: #bc13fe;
+            --neon-glow: #d670ff;
+            --dark-bg: #050505;
+            --card-bg: rgba(20, 0, 40, 0.7);
+            --green: #00ff00;
+            --red: #ff0000;
+            --gold: #ffcc00;
+            --blue: #00d4ff;
+            --orange: #ff9900;
+            --violet: #9d00ff;
+            --teal: #00ffcc;
+            --pink: #ff00aa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Rajdhani', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* Landing Page */
+        #landing-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .main-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            color: var(--neon-purple);
+            text-shadow: 0 0 15px var(--neon-purple);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .platform-scroller {
+            display: flex;
+            overflow-x: auto;
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            padding: 40px 20px;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+        }
+
+        .platform-scroller::-webkit-scrollbar {
+            display: none;
+        }
+
+        .platform-card {
+            flex: 0 0 250px;
+            height: 450px;
+            background: var(--card-bg);
+            border: 2px solid var(--neon-purple);
+            border-radius: 25px;
+            position: relative;
+            overflow: hidden;
+            transition: 0.3s;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(188, 19, 254, 0.2);
+        }
+
+        .platform-card:hover {
+            transform: scale(1.05) translateY(-10px);
+            box-shadow: 0 0 30px var(--neon-purple);
+        }
+
+        .platform-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 25px;
+        }
+
+        .platform-label {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            border-top: 1px solid var(--neon-purple);
+        }
+
+        /* Target Selection Page */
+        #target-page {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: var(--neon-purple);
+            cursor: pointer;
+            font-size: 1.5rem;
+            z-index: 10;
+        }
+
+        .target-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: var(--neon-purple);
+            text-shadow: 0 0 10px var(--neon-purple);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .target-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1000px;
+            padding: 20px;
+        }
+
+        .target-card {
+            background: linear-gradient(135deg, rgba(30,0,60,0.8), rgba(60,0,120,0.8));
+            border: 2px solid var(--neon-purple);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .target-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(188, 19, 254, 0.4);
+        }
+
+        .target-card.selected {
+            border-color: var(--gold);
+            box-shadow: 0 0 30px rgba(255, 204, 0, 0.5);
+        }
+
+        .target-range {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--gold);
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px var(--gold);
+        }
+
+        .target-price {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--neon-purple);
+            margin: 15px 0;
+        }
+
+        .target-desc {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 20px;
+        }
+
+        .select-btn {
+            background: linear-gradient(45deg, var(--neon-purple), #9d00ff);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+        }
+
+        .select-btn:hover {
+            background: linear-gradient(45deg, #9d00ff, var(--neon-purple));
+            box-shadow: 0 0 20px var(--neon-purple);
+        }
+
+        /* Add-ons Selection Page */
+        #addons-page {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .addons-container {
+            background: var(--card-bg);
+            border: 2px solid var(--neon-purple);
+            border-radius: 25px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .addons-title {
+            color: var(--gold);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .target-summary {
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid var(--neon-purple);
+        }
+
+        .addon-item {
+            background: linear-gradient(135deg, rgba(40,0,80,0.7), rgba(80,0,160,0.7));
+            border: 2px solid var(--teal);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            text-align: left;
+            position: relative;
+        }
+
+        .addon-item.selected {
+            border-color: var(--gold);
+            background: linear-gradient(135deg, rgba(60,0,120,0.8), rgba(100,0,200,0.8));
+        }
+
+        .addon-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .addon-name {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--teal);
+        }
+
+        .addon-price {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--gold);
+        }
+
+        .addon-desc {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 15px;
+        }
+
+        .addon-benefits {
+            font-size: 0.85rem;
+            color: var(--green);
+            margin-bottom: 10px;
+        }
+
+        .addon-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toggle-btn {
+            background: linear-gradient(45deg, var(--teal), #00ccaa);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .toggle-btn.active {
+            background: linear-gradient(45deg, var(--red), #ff3333);
+        }
+
+        .skip-btn {
+            background: transparent;
+            color: var(--blue);
+            border: 1px solid var(--blue);
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .skip-btn:hover {
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .total-amount {
+            background: rgba(0,0,0,0.7);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid var(--gold);
+        }
+
+        .total-label {
+            font-size: 1.1rem;
+            color: #aaa;
+        }
+
+        .total-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--green);
+            margin-top: 5px;
+        }
+
+        .proceed-btn {
+            background: linear-gradient(45deg, var(--neon-purple), #9d00ff);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+            margin: 10px 0;
+            font-size: 1.1rem;
+        }
+
+        .proceed-btn:hover {
+            background: linear-gradient(45deg, #9d00ff, var(--neon-purple));
+            box-shadow: 0 0 20px var(--neon-purple);
+        }
+
+        /* Payment Page */
+        #payment-page {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .payment-container {
+            background: var(--card-bg);
+            border: 2px solid var(--neon-purple);
+            border-radius: 25px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .payment-title {
+            color: var(--gold);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .target-display {
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid var(--neon-purple);
+        }
+
+        .addons-summary {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 1px solid var(--teal);
+            text-align: left;
+        }
+
+        .addon-summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            font-size: 0.9rem;
+        }
+
+        .qr-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+            margin: 20px 0;
+        }
+
+        .qr-container img {
+            width: 200px;
+            height: 200px;
+        }
+
+        .payment-amount {
+            font-size: 1.5rem;
+            color: var(--green);
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .payment-instruction {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+
+        .utr-input {
+            width: 100%;
+            padding: 15px;
+            margin: 15px 0;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid var(--neon-purple);
+            color: white;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #00cc00, #009900);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .submit-btn:hover {
+            background: linear-gradient(45deg, #009900, #00cc00);
+            box-shadow: 0 0 20px #00cc00;
+        }
+
+        .support-btn {
+            background: linear-gradient(45deg, #ff9900, #ff6600);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .support-btn:hover {
+            background: linear-gradient(45deg, #ff6600, #ff9900);
+        }
+
+        /* Prediction Page */
+        #prediction-page {
+            display: none;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+
+        .app-container {
+            max-width: 500px;
+            margin: 0 auto;
+            border: 3px solid var(--neon-purple);
+            border-radius: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.95);
+            min-height: 90vh;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 0 20px var(--neon-purple);
+        }
+
+        .target-header {
+            background: linear-gradient(90deg, #9d00ff, #bc13fe, #9d00ff);
+            background-size: 200% auto;
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 2px solid var(--gold);
+            animation: glow 2s infinite linear;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes glow {
+            0% { background-position: 0% center; }
+            50% { background-position: 100% center; }
+            100% { background-position: 0% center; }
+        }
+
+        .target-goal {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .addons-badges {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .badge {
+            background: var(--teal);
+            color: black;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .insurance-badge {
+            background: var(--pink);
+        }
+
+        .accuracy-badge {
+            background: var(--teal);
+        }
+
+        .balance-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,40,80,0.5);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 15px 0;
+            border: 1px solid var(--blue);
+        }
+
+        .balance-label {
+            color: var(--blue);
+            font-weight: bold;
+        }
+
+        .balance-amount {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--green);
+            text-shadow: 0 0 10px var(--green);
+        }
+
+        .period-display {
+            text-align: center;
+            background: rgba(188, 19, 254, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 1px solid var(--neon-purple);
+            overflow: hidden;
+        }
+
+        .period-number {
+            font-size: 1.7rem;
+            font-weight: bold;
+            color: var(--gold);
+            font-family: 'Orbitron', sans-serif;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid var(--neon-purple);
+            margin-top: 8px;
+            word-break: break-all;
+            max-width: 100%;
+            box-shadow: 0 0 15px rgba(188, 19, 254, 0.3) inset;
+        }
+
+        .prediction-main {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid var(--neon-purple);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .prediction-text {
+            font-size: 4rem;
+            font-weight: 900;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            margin: 10px 0;
+        }
+
+        .bet-amount {
+            font-size: 1.5rem;
+            color: var(--gold);
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .bet-levels {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+        }
+
+        .level-box {
+            flex: 1;
+            padding: 10px;
+            margin: 0 5px;
+            border-radius: 10px;
+            text-align: center;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--neon-purple);
+        }
+
+        .level-active {
+            border-color: var(--gold);
+            background: rgba(255,204,0,0.1);
+        }
+
+        .level-number {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .level-percent {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .level-amount {
+            font-size: 1.1rem;
+            color: var(--green);
+            font-weight: bold;
+        }
+
+        .history-panel {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid rgba(188, 19, 254, 0.3);
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 20px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Pattern Analysis Info */
+        .pattern-info {
+            background: rgba(0,0,0,0.7);
+            border: 1px solid var(--blue);
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: #aaa;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .pattern-tag {
+            display: inline-block;
+            background: rgba(188, 19, 254, 0.2);
+            color: var(--neon-purple);
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin: 2px;
+            font-size: 0.7rem;
+        }
+
+        /* Popups */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popup-content {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            border: 3px solid;
+            animation: popupAppear 0.5s;
+        }
+
+        @keyframes popupAppear {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .popup-success {
+            border-color: var(--green);
+            box-shadow: 0 0 40px rgba(0,255,0,0.3);
+        }
+
+        .popup-failure {
+            border-color: var(--red);
+            box-shadow: 0 0 40px rgba(255,0,0,0.3);
+        }
+
+        .popup-title {
+            font-size: 2rem;
+            font-family: 'Orbitron', sans-serif;
+            margin-bottom: 20px;
+        }
+
+        .popup-success .popup-title {
+            color: var(--green);
+            text-shadow: 0 0 15px var(--green);
+        }
+
+        .popup-failure .popup-title {
+            color: var(--red);
+            text-shadow: 0 0 15px var(--red);
+        }
+
+        .popup-message {
+            margin: 20px 0;
+            font-size: 1.1rem;
+        }
+
+        .popup-button {
+            background: linear-gradient(45deg, var(--neon-purple), #9d00ff);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 1.1rem;
+        }
+
+        /* Admin Panel Styles */
+        #admin-toggle-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, var(--neon-purple), #9d00ff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 9998;
+            box-shadow: 0 0 15px rgba(188, 19, 254, 0.5);
+            transition: all 0.3s;
+        }
+
+        #admin-toggle-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 25px var(--neon-purple);
+        }
+
+        #admin-toggle-btn i {
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        #admin-panel {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(5, 5, 15, 0.98);
+            border: 3px solid var(--neon-purple);
+            border-radius: 20px;
+            padding: 30px;
+            width: 95%;
+            max-width: 1200px;
+            max-height: 85vh;
+            overflow-y: auto;
+            z-index: 9999;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 50px rgba(188, 19, 254, 0.5);
+        }
+
+        .admin-header {
+            text-align: center;
+            color: var(--neon-purple);
+            font-family: 'Orbitron', sans-serif;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .admin-tab {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid var(--neon-purple);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .admin-tab.active {
+            background: var(--neon-purple);
+            color: white;
+        }
+
+        .admin-tab:hover {
+            background: rgba(188, 19, 254, 0.3);
+        }
+
+        .payment-requests {
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 20px 0;
+            border: 1px solid rgba(188, 19, 254, 0.3);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .request-item {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--neon-purple);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .request-info {
+            flex: 1;
+        }
+
+        .request-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-approve {
+            background: var(--green);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-reject {
+            background: var(--red);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .admin-search {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid var(--neon-purple);
+            color: white;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-box {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--neon-purple);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--gold);
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        /* Colors */
+        .win {
+            color: var(--green);
+            text-shadow: 0 0 5px var(--green);
+        }
+
+        .loss {
+            color: var(--red);
+            text-shadow: 0 0 5px var(--red);
+        }
+
+        .big {
+            color: var(--gold);
+        }
+
+        .small {
+            color: var(--blue);
+        }
+
+        .red {
+            color: #ff3e3e;
+        }
+
+        .green {
+            color: #44ff44;
+        }
+
+        .violet {
+            color: var(--violet);
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading-dots:after {
+            content: '.';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60% { content: '...'; }
+            80%, 100% { content: ''; }
+        }
+
+        /* Admin Control Buttons */
+        .admin-controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .admin-btn {
+            padding: 10px 20px;
+            background: rgba(188, 19, 254, 0.2);
+            border: 1px solid var(--neon-purple);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .admin-btn:hover {
+            background: var(--neon-purple);
+        }
+
+        .admin-btn.primary {
+            background: linear-gradient(45deg, var(--green), #00cc00);
+            border: 1px solid var(--green);
+        }
+
+        .admin-btn.danger {
+            background: linear-gradient(45deg, var(--red), #ff3333);
+            border: 1px solid var(--red);
+        }
+
+        /* Table Styles */
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .admin-table th,
+        .admin-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .admin-table th {
+            background: rgba(188, 19, 254, 0.2);
+            color: var(--neon-purple);
+        }
+
+        .admin-table tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* Admin Content Panels */
+        .admin-content {
+            display: none;
+        }
+
+        .admin-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div id="particles-js"></div>
+
+<!-- Admin Toggle Button -->
+<div id="admin-toggle-btn" onclick="openAdminPanel()">
+    <i class="fas fa-user-secret"></i>
+</div>
+
+<!-- Popups -->
+<div id="success-popup" class="popup">
+    <div class="popup-content popup-success">
+        <div class="popup-title">TARGET COMPLETED!</div>
+        <div class="popup-message">
+            <p>Congratulations! You have successfully reached your target.</p>
+            <p style="color: var(--gold); margin-top: 15px; font-size: 1.3rem;">₹<span id="completed-amount">0</span> Achieved!</p>
+            <div id="insurance-refund" style="display: none; color: var(--pink); margin-top: 10px;">
+                <i class="fas fa-shield-alt"></i> Insurance not used - Keep it for next target!
+            </div>
+        </div>
+        <button class="popup-button" onclick="goToTargetSelection()">BUY NEW TARGET</button>
+    </div>
+</div>
+
+<div id="failure-popup" class="popup">
+    <div class="popup-content popup-failure">
+        <div class="popup-title" id="failure-title">TARGET LOST!</div>
+        <div class="popup-message" id="failure-message">
+            <!-- Dynamic content will be inserted here -->
+        </div>
+        <button class="popup-button" onclick="goToTargetSelection()" id="failure-button">BUY WITH DISCOUNT</button>
+    </div>
+</div>
+
+<!-- Admin Panel -->
+<div id="admin-panel">
+    <div class="admin-header">ADMIN CONTROL PANEL</div>
+    
+    <input type="password" id="admin-pass" class="utr-input" placeholder="Enter Admin Password (7738)" style="max-width: 300px; margin: 0 auto;">
+    
+    <div id="admin-controls" style="display:none;">
+        <!-- Admin Tabs -->
+        <div class="admin-tabs">
+            <div class="admin-tab active" onclick="switchAdminTab('payments')">Payment Requests</div>
+            <div class="admin-tab" onclick="switchAdminTab('users')">User Management</div>
+            <div class="admin-tab" onclick="switchAdminTab('stats')">Statistics</div>
+            <div class="admin-tab" onclick="switchAdminTab('manual')">Manual Entry</div>
+            <div class="admin-tab" onclick="switchAdminTab('reports')">Reports</div>
+        </div>
+
+        <!-- Search Bar -->
+        <input type="text" class="admin-search" id="admin-search" placeholder="Search..." onkeyup="searchAdminContent()">
+
+        <!-- Payments Tab -->
+        <div id="payments-tab" class="admin-content active">
+            <div style="color: var(--blue); margin: 20px 0; font-size: 1.2rem;">PENDING PAYMENT REQUESTS</div>
+            
+            <div class="admin-controls">
+                <button class="admin-btn" onclick="refreshPayments()">
+                    <i class="fas fa-sync"></i> Refresh
+                </button>
+                <button class="admin-btn primary" onclick="approveAllPayments()">
+                    <i class="fas fa-check-circle"></i> Approve All
+                </button>
+                <button class="admin-btn danger" onclick="rejectAllPayments()">
+                    <i class="fas fa-times-circle"></i> Reject All
+                </button>
+            </div>
+            
+            <div id="payment-requests" class="payment-requests"></div>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="users-tab" class="admin-content">
+            <div style="color: var(--teal); margin: 20px 0; font-size: 1.2rem;">USER MANAGEMENT</div>
+            
+            <div class="stats-container">
+                <div class="stat-box">
+                    <div class="stat-label">Total Users</div>
+                    <div class="stat-value" id="total-users">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Active Sessions</div>
+                    <div class="stat-value" id="active-sessions">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Total Earnings</div>
+                    <div class="stat-value" id="total-earnings">₹0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Completed Targets</div>
+                    <div class="stat-value" id="completed-targets">0</div>
+                </div>
+            </div>
+
+            <div class="admin-controls">
+                <button class="admin-btn" onclick="loadAllUsers()">
+                    <i class="fas fa-users"></i> Load All Users
+                </button>
+                <button class="admin-btn" onclick="exportUsers()">
+                    <i class="fas fa-download"></i> Export to CSV
+                </button>
+            </div>
+
+            <div id="users-list" style="margin-top: 20px; max-height: 400px; overflow-y: auto;">
+                <!-- Users will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Statistics Tab -->
+        <div id="stats-tab" class="admin-content">
+            <div style="color: var(--gold); margin: 20px 0; font-size: 1.2rem;">SYSTEM STATISTICS</div>
+            
+            <div class="stats-container">
+                <div class="stat-box">
+                    <div class="stat-label">Today's Earnings</div>
+                    <div class="stat-value" id="today-earnings">₹0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">This Week</div>
+                    <div class="stat-value" id="week-earnings">₹0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">This Month</div>
+                    <div class="stat-value" id="month-earnings">₹0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Refunds Given</div>
+                    <div class="stat-value" id="total-refunds">₹0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Success Rate</div>
+                    <div class="stat-value" id="success-rate">0%</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Avg. Time/Target</div>
+                    <div class="stat-value" id="avg-time">0m</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px;">
+                <canvas id="earningsChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Manual Entry Tab -->
+        <div id="manual-tab" class="admin-content">
+            <div style="color: var(--pink); margin: 20px 0; font-size: 1.2rem;">MANUAL USER ENTRY</div>
+            
+            <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h3 style="color: var(--blue); margin-bottom: 15px;">Create New User Session</h3>
+                
+                <input type="text" id="manual-user-id" class="utr-input" placeholder="User ID (leave blank for auto)" style="margin: 10px 0;">
+                
+                <select id="manual-platform" class="utr-input" style="margin: 10px 0;">
+                    <option value="">Select Platform</option>
+                    <option value="TASHAN">TASHAN</option>
+                    <option value="DM WIN">DM WIN</option>
+                    <option value="DAMAN">DAMAN</option>
+                    <option value="JALWA">JALWA</option>
+                    <option value="82 LOTTERY">82 LOTTERY</option>
+                    <option value="BDG GAME">BDG GAME</option>
+                    <option value="GOA GAME">GOA GAME</option>
+                    <option value="91 CLUB">91 CLUB</option>
+                </select>
+                
+                <select id="manual-target" class="utr-input" style="margin: 10px 0;" onchange="updateManualTarget()">
+                    <option value="">Select Target</option>
+                    <option value="350-1500">350 To 1500 (₹250)</option>
+                    <option value="500-3500">500 To 3500 (₹500)</option>
+                    <option value="1000-10000">1000 To 10000 (₹999)</option>
+                    <option value="2500-25000">2500 To 25000 (₹1500)</option>
+                    <option value="5000-50000">5000 To 50000 (₹2500)</option>
+                    <option value="1000-35000">1000 To 35000 (₹5000)</option>
+                    <option value="2000-70000">2000 To 70000 (₹10000)</option>
+                </select>
+                
+                <div style="display: flex; gap: 10px; margin: 15px 0;">
+                    <label style="display: flex; align-items: center; gap: 5px;">
+                        <input type="checkbox" id="manual-accuracy">
+                        <span>Accuracy Booster</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 5px;">
+                        <input type="checkbox" id="manual-insurance">
+                        <span>Insurance</span>
+                    </label>
+                </div>
+                
+                <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin: 15px 0;">
+                    <div style="color: #aaa;">Total Amount:</div>
+                    <div style="font-size: 1.5rem; color: var(--green);" id="manual-total">₹0</div>
+                </div>
+                
+                <button class="submit-btn" onclick="createManualSession()">
+                    <i class="fas fa-plus-circle"></i> Create Session
+                </button>
+            </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reports-tab" class="admin-content">
+            <div style="color: var(--orange); margin: 20px 0; font-size: 1.2rem;">FINANCIAL REPORTS</div>
+            
+            <div class="admin-controls">
+                <button class="admin-btn" onclick="generateDailyReport()">
+                    <i class="fas fa-calendar-day"></i> Daily Report
+                </button>
+                <button class="admin-btn" onclick="generateWeeklyReport()">
+                    <i class="fas fa-calendar-week"></i> Weekly Report
+                </button>
+                <button class="admin-btn" onclick="generateMonthlyReport()">
+                    <i class="fas fa-calendar-alt"></i> Monthly Report
+                </button>
+                <button class="admin-btn" onclick="exportReport()">
+                    <i class="fas fa-file-excel"></i> Export Excel
+                </button>
+            </div>
+
+            <div id="report-content" style="margin-top: 20px; min-height: 300px;">
+                <!-- Reports will be generated here -->
+            </div>
+        </div>
+
+        <button class="submit-btn" onclick="closeAdminPanel()" style="background: var(--red); margin-top: 20px;">
+            <i class="fas fa-times"></i> CLOSE PANEL
+        </button>
+    </div>
+</div>
+
+<!-- Landing Page -->
+<section id="landing-page">
+    <h1 class="main-title">CHOOSE PLATFORM</h1>
+    <div class="platform-scroller">
+        <div class="platform-card" onclick="openTargetPage('TASHAN')">
+            <img src="tashan.png" alt="TASHAN">
+            <div class="platform-label">TASHAN</div>
+        </div>
+        <div class="platform-card" onclick="openTargetPage('DM WIN')">
+            <img src="dmwin.png" alt="DM WIN">
+            <div class="platform-label">DM WIN</div>
+        </div>
+        <div class="platform-card" onclick="openTargetPage('DAMAN')">
+            <img src="daman.png" alt="DAMAN">
+            <div class="platform-label">DAMAN</div>
+        </div>
+        <div class="platform-card" onclick="openTargetPage('JALWA')">
+            <img src="jalwa.png" alt="JALWA">
+            <div class="platform-label">JALWA</div>
+        </div>
+        <div class="platform-card" onclick="openTargetPage('82 LOTTERY')">
+            <img src="82lottery.png" alt="82 LOTTERY">
+            <div class="platform-label">82 LOTTERY</div>
+        </div>
+        <div class="platform-card" onclick="openTargetPage('BDG GAME')">
+            <img src="bdggame.png" alt="BDG GAME">
+            <div class="platform-label">BDG GAME</div>
+        </div>
+        <div class="platform-card" onclick="openTargetPage('GOA GAME')">
+            <img src="goagame.png" alt="GOA GAME">
+            <div class="platform-label">GOA GAME</div>
+        </div>
+        <div class="platform-card" onclick="openTargetPage('91 CLUB')">
+            <img src="91club.png" alt="91 CLUB">
+            <div class="platform-label">91 CLUB</div>
+        </div>
+    </div>
+</section>
+
+<!-- Target Selection Page -->
+<section id="target-page">
+    <div class="back-button" onclick="goBackToPlatform()">
+        <i class="fas fa-arrow-left"></i>
+    </div>
+    <h2 class="target-title">CHOOSE YOUR TARGET</h2>
+    <div class="target-grid">
+        <div class="target-card" data-target="350-1500" data-price="250">
+            <div class="target-range">350 To 1500</div>
+            <div class="target-price">₹250</div>
+            <div class="target-desc">Start with ₹350, target ₹1500</div>
+            <button class="select-btn" onclick="selectTarget('350-1500', 250)">SELECT</button>
+        </div>
+        <div class="target-card" data-target="500-3500" data-price="500">
+            <div class="target-range">500 To 3500</div>
+            <div class="target-price">₹500</div>
+            <div class="target-desc">Start with ₹500, target ₹3500</div>
+            <button class="select-btn" onclick="selectTarget('500-3500', 500)">SELECT</button>
+        </div>
+        <div class="target-card" data-target="1000-10000" data-price="999">
+            <div class="target-range">1000 To 10000</div>
+            <div class="target-price">₹999</div>
+            <div class="target-desc">Start with ₹1000, target ₹10000</div>
+            <button class="select-btn" onclick="selectTarget('1000-10000', 999)">SELECT</button>
+        </div>
+        <div class="target-card" data-target="2500-25000" data-price="1500">
+            <div class="target-range">2500 To 25000</div>
+            <div class="target-price">₹1500</div>
+            <div class="target-desc">Start with ₹2500, target ₹25000</div>
+            <button class="select-btn" onclick="selectTarget('2500-25000', 1500)">SELECT</button>
+        </div>
+        <div class="target-card" data-target="5000-50000" data-price="2500">
+            <div class="target-range">5000 To 50000</div>
+            <div class="target-price">₹2500</div>
+            <div class="target-desc">Start with ₹5000, target ₹50000</div>
+            <button class="select-btn" onclick="selectTarget('5000-50000', 2500)">SELECT</button>
+        </div>
+        <div class="target-card" data-target="1000-35000" data-price="5000">
+            <div class="target-range">1000 To 35000</div>
+            <div class="target-price">₹5000</div>
+            <div class="target-desc">Start with ₹1000, target ₹35000</div>
+            <button class="select-btn" onclick="selectTarget('1000-35000', 5000)">SELECT</button>
+        </div>
+        <div class="target-card" data-target="2000-70000" data-price="10000">
+            <div class="target-range">2000 To 70000</div>
+            <div class="target-price">₹10000</div>
+            <div class="target-desc">Start with ₹2000, target ₹70000</div>
+            <button class="select-btn" onclick="selectTarget('2000-70000', 10000)">SELECT</button>
+        </div>
+    </div>
+</section>
+
+<!-- Add-ons Selection Page -->
+<section id="addons-page">
+    <div class="back-button" onclick="goBackToTarget()">
+        <i class="fas fa-arrow-left"></i>
+    </div>
+    <div class="addons-container">
+        <h2 class="addons-title">ADD-ONS SELECTION</h2>
+        <div class="target-summary">
+            <div id="selected-target-summary" style="font-size: 1.3rem; color: var(--gold);"></div>
+            <div style="font-size: 0.9rem; color: #aaa; margin-top: 5px;">Target Selected</div>
+        </div>
+        
+        <!-- Accuracy Booster -->
+        <div class="addon-item" id="accuracy-booster-item">
+            <div class="addon-header">
+                <div class="addon-name">90% ACCURACY BOOSTER</div>
+                <div class="addon-price" id="accuracy-booster-price">₹50</div>
+            </div>
+            <div class="addon-desc">Boost your prediction accuracy to 90% for this target cycle.</div>
+            <div class="addon-benefits">
+                <i class="fas fa-check-circle"></i> 90% Prediction Accuracy<br>
+                <i class="fas fa-check-circle"></i> Advanced Pattern Analysis<br>
+                <i class="fas fa-check-circle"></i> Smart Bet Adjustment
+            </div>
+            <div class="addon-toggle">
+                <button class="skip-btn" onclick="skipAccuracyBooster()">
+                    <i class="fas fa-times"></i> SKIP
+                </button>
+                <button class="toggle-btn" id="accuracy-booster-toggle" onclick="toggleAccuracyBooster()">
+                    <i class="fas fa-plus"></i> ADD
+                </button>
+            </div>
+        </div>
+        
+        <!-- Insurance -->
+        <div class="addon-item" id="insurance-item">
+            <div class="addon-header">
+                <div class="addon-name">LOSS PROTECTION INSURANCE</div>
+                <div class="addon-price" id="insurance-price">₹100</div>
+            </div>
+            <div class="addon-desc">Get full refund of deposit + target price if you lose.</div>
+            <div class="addon-benefits">
+                <i class="fas fa-shield-alt"></i> Full Deposit Refund<br>
+                <i class="fas fa-shield-alt"></i> Target Price Refund<br>
+                <i class="fas fa-shield-alt"></i> 100% Money Back Guarantee
+            </div>
+            <div class="addon-toggle">
+                <button class="skip-btn" onclick="skipInsurance()">
+                    <i class="fas fa-times"></i> SKIP
+                </button>
+                <button class="toggle-btn" id="insurance-toggle" onclick="toggleInsurance()">
+                    <i class="fas fa-plus"></i> ADD
+                </button>
+            </div>
+        </div>
+        
+        <div class="total-amount">
+            <div class="total-label">TOTAL PAYABLE AMOUNT</div>
+            <div class="total-value" id="total-payable-amount">₹250</div>
+        </div>
+        
+        <button class="proceed-btn" onclick="proceedToPayment()">
+            <i class="fas fa-arrow-right"></i> PROCEED TO PAYMENT
+        </button>
+        
+        <div style="font-size: 0.8rem; color: #666; margin-top: 20px;">
+            <i class="fas fa-info-circle"></i> Add-ons are optional. You can skip both.
+        </div>
+    </div>
+</section>
+
+<!-- Payment Page -->
+<section id="payment-page">
+    <div class="back-button" onclick="goBackToAddons()">
+        <i class="fas fa-arrow-left"></i>
+    </div>
+    <div class="payment-container">
+        <h2 class="payment-title">COMPLETE PAYMENT</h2>
+        <div class="target-display">
+            <div id="selected-target-display" style="font-size: 1.3rem; color: var(--gold);"></div>
+            <div style="font-size: 0.9rem; color: #aaa; margin-top: 5px;">Target Selected</div>
+        </div>
+        
+        <div class="addons-summary" id="addons-summary-display">
+            <div style="color: var(--teal); margin-bottom: 8px; font-weight: bold;">SELECTED ADD-ONS:</div>
+            <!-- Dynamic content will be inserted here -->
+        </div>
+        
+        <div class="qr-container">
+            <img src=https://i.ibb.co/HLXXBRLm/IMG-20260203-094135-768.jpg" alt="Payment QR Code">
+        </div>
+        
+        <div class="payment-amount" id="payment-amount-display">Pay ₹250</div>
+        
+        <div class="payment-instruction">
+            <p><i class="fas fa-info-circle"></i> Scan QR code and pay exact amount</p>
+            <p style="font-size: 0.8rem; color: #aaa; margin-top: 5px;">After payment, enter UTR number below</p>
+        </div>
+        
+        <input type="text" id="utr-input" class="utr-input" placeholder="Enter UTR Number" maxlength="20">
+        
+        <button class="submit-btn" onclick="submitPayment()">
+            <i class="fas fa-check-circle"></i> SUBMIT UTR
+        </button>
+        
+        <button class="support-btn" onclick="openSupport()">
+            <i class="t.me/Yt_bhai10"></i> CUSTOMER SUPPORT
+        </button>
+        
+        <div style="font-size: 0.8rem; color: #666; margin-top: 20px;">
+            <i class="t.me/Yt_bhai10"></i> Payment verified manually. Approval takes 2-5 minutes.
+        </div>
+    </div>
+</section>
+
+<!-- Prediction Page -->
+<section id="prediction-page">
+    <div class="app-container">
+        <div class="back-button" onclick="goToTargetSelection()">
+            <i class="fas fa-home"></i>
+        </div>
+        
+        <div class="target-header">
+            <div class="target-goal" id="current-target-goal">Target: 350 To 1500</div>
+            <div class="addons-badges" id="addons-badges">
+                <!-- Dynamic badges will be inserted here -->
+            </div>
+        </div>
+        
+        <div class="balance-container">
+            <div class="balance-label">CURRENT BALANCE</div>
+            <div class="balance-amount" id="current-balance">₹350</div>
+        </div>
+        
+        <div class="period-display">
+            <div style="font-size: 0.9rem; color: var(--blue);">LIVE NEXT PERIOD</div>
+            <div class="period-number" id="current-period">LOADING...</div>
+        </div>
+        
+        <div class="prediction-main">
+            <div style="font-size: 0.9rem; color: #aaa;">NEXT PREDICTION</div>
+            <div id="prediction-text" class="prediction-text">--</div>
+            <div id="prediction-type" style="color: var(--neon-purple); font-size: 1.1rem;">BIG/SMALL</div>
+            
+            <div class="bet-amount" id="bet-amount-display">Bet Amount: ₹0</div>
+            
+            <div class="bet-levels">
+                <div class="level-box" id="level-1">
+                    <div class="level-number">LEVEL 1</div>
+                    <div class="level-percent">15%</div>
+                    <div class="level-amount" id="level-1-amount">₹0</div>
+                </div>
+                <div class="level-box" id="level-2">
+                    <div class="level-number">LEVEL 2</div>
+                    <div class="level-percent">30%</div>
+                    <div class="level-amount" id="level-2-amount">₹0</div>
+                </div>
+                <div class="level-box" id="level-3">
+                    <div class="level-number">LEVEL 3</div>
+                    <div class="level-percent">55%</div>
+                    <div class="level-amount" id="level-3-amount">₹0</div>
+                </div>
+            </div>
+            
+            <!-- Pattern Analysis Info -->
+            <div class="pattern-info" id="pattern-info">
+                <div style="color: var(--blue); margin-bottom: 5px;">PATTERN ANALYSIS:</div>
+                <div id="pattern-details">Analyzing patterns...</div>
+            </div>
+            
+            <div style="margin-top: 15px; font-size: 0.8rem; color: #aaa;">
+                <i class="fas fa-info-circle"></i> Bet progresses through levels on loss
+            </div>
+        </div>
+        
+        <div class="history-panel" id="history-list">
+            <div style="text-align: center; color: var(--neon-purple); margin-bottom: 10px; font-weight: bold;">PREDICTION HISTORY</div>
+            <div id="history-items"></div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px; font-size: 0.7rem; color: #666;">
+            <i class="fas fa-copyright"></i> Mickey X Web 2024 | Ultra Pro Predictor
+        </div>
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<!-- Chart.js for Statistics -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Initialize Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyCShaI7FfDCvZ9t21RdBk7ATjk5PQUAeQI",
+        authDomain: "wingo-predictor-hub.firebaseapp.com",
+        databaseURL: "https://wingo-predictor-hub-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "wingo-predictor-hub",
+        storageBucket: "wingo-predictor-hub.firebasestorage.app",
+        messagingSenderId: "510934626240",
+        appId: "1:510934626240:web:8df9c4b4a78964f15d2225",
+        measurementId: "G-TTM7WXC4DW"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    
+    // Particles background
+    particlesJS("particles-js", {
+        particles: {
+            number: { value: 60, density: { enable: true, value_area: 800 } },
+            color: { value: "#bc13fe" },
+            shape: { type: "circle" },
+            opacity: { value: 0.3 },
+            size: { value: 2 },
+            line_linked: {
+                enable: true,
+                distance: 150,
+                color: "#bc13fe",
+                opacity: 0.2,
+                width: 1
+            },
+            move: {
+                enable: true,
+                speed: 2,
+                direction: "none",
+                out_mode: "bounce"
+            }
+        }
+    });
+    
+    // Global variables
+    const API_URL = "https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json";
+    let lastPeriod = "";
+    let currentPlatform = "";
+    let currentTarget = "";
+    let currentPrice = 0;
+    let currentBalance = 0;
+    let targetMax = 0;
+    let currentLevel = 1;
+    let currentBetAmount = 0;
+    let historyData = [];
+    let winStreak = 0;
+    let lossStreak = 0;
+    let totalPredictions = 0;
+    let correctPredictions = 0;
+    let analysisWindowSize = 10; // Start with 10 results
+    let allResults = []; // Store all results for analysis
+    let isAnalyzing = false;
+    let userId = "";
+    let paymentRequestId = "";
+    let originalBalanceForCycle = 0;
+    let currentPredictionMode = "SIZE"; // "SIZE" or "COLOR"
+    let lastBetWon = true;
+    let patternHistory = [];
+    
+    // Add-ons variables
+    let accuracyBoosterSelected = false;
+    let insuranceSelected = false;
+    let accuracyBoosterPrice = 0;
+    let insurancePrice = 0;
+    let totalPayableAmount = 0;
+    
+    // Target configurations with add-on prices
+    const targetConfigs = {
+        "350-1500": { start: 350, target: 1500, price: 250, booster: 50, insurance: 100 },
+        "500-3500": { start: 500, target: 3500, price: 500, booster: 100, insurance: 200 },
+        "1000-10000": { start: 1000, target: 10000, price: 999, booster: 200, insurance: 400 },
+        "2500-25000": { start: 2500, target: 25000, price: 1500, booster: 300, insurance: 600 },
+        "5000-50000": { start: 5000, target: 50000, price: 2500, booster: 500, insurance: 1000 },
+        "1000-35000": { start: 1000, target: 35000, price: 5000, booster: 1000, insurance: 2000 },
+        "2000-70000": { start: 2000, target: 70000, price: 10000, booster: 2000, insurance: 4000 }
+    };
+    
+    // Chart instance
+    let earningsChart = null;
+    
+    // Generate user ID
+    function generateUserId() {
+        let id = localStorage.getItem('mickey_user_id');
+        if (!id) {
+            id = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('mickey_user_id', id);
+        }
+        return id;
+    }
+    
+    // Initialize user ID
+    userId = generateUserId();
+    
+    // ==================== ADMIN PANEL FUNCTIONS ====================
+    
+    function openAdminPanel() {
+        const password = prompt("Enter Admin Password:");
+        if (password === "7738") {
+            document.getElementById('admin-panel').style.display = 'block';
+            document.getElementById('admin-controls').style.display = 'block';
+            loadPaymentRequests();
+            loadStatistics();
+        } else {
+            alert('Wrong password!');
+        }
+    }
+    
+    function closeAdminPanel() {
+        document.getElementById('admin-panel').style.display = 'none';
+        document.getElementById('admin-pass').value = '';
+    }
+    
+    function switchAdminTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll('.admin-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        // Remove active class from all tab buttons
+        document.querySelectorAll('.admin-tab').forEach(tabBtn => {
+            tabBtn.classList.remove('active');
+        });
+        
+        // Show selected tab
+        document.getElementById(tabName + '-tab').classList.add('active');
+        
+        // Add active class to clicked tab button
+        event.target.classList.add('active');
+        
+        // Load tab specific data
+        switch(tabName) {
+            case 'payments':
+                loadPaymentRequests();
+                break;
+            case 'users':
+                loadAllUsers();
+                break;
+            case 'stats':
+                loadStatistics();
+                break;
+            case 'manual':
+                // Nothing to load
+                break;
+            case 'reports':
+                generateDailyReport();
+                break;
+        }
+    }
+    
+    function searchAdminContent() {
+        const searchTerm = document.getElementById('admin-search').value.toLowerCase();
+        
+        // Get current active tab
+        const activeTab = document.querySelector('.admin-content.active');
+        if (!activeTab) return;
+        
+        // Search in payment requests
+        if (activeTab.id === 'payments-tab') {
+            document.querySelectorAll('.request-item').forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(searchTerm) ? 'flex' : 'none';
+            });
+        }
+        
+        // Search in users list
+        if (activeTab.id === 'users-tab') {
+            document.querySelectorAll('.user-item').forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(searchTerm) ? 'flex' : 'none';
+            });
+        }
+    }
+    
+    // ==================== PAYMENT MANAGEMENT ====================
+    
+    function loadPaymentRequests() {
+        database.ref('paymentRequests').orderByChild('status').equalTo('pending').once('value')
+            .then(snapshot => {
+                const requests = snapshot.val();
+                const container = document.getElementById('payment-requests');
+                container.innerHTML = '';
+                
+                if (!requests) {
+                    container.innerHTML = '<div style="color: #aaa; text-align: center; padding: 20px;">No pending requests</div>';
+                    return;
+                }
+                
+                Object.keys(requests).forEach(requestId => {
+                    const request = requests[requestId];
+                    const div = document.createElement('div');
+                    div.className = 'request-item';
+                    div.innerHTML = `
+                        <div class="request-info">
+                            <div><strong>User:</strong> ${request.userId.substring(0, 10)}...</div>
+                            <div><strong>Target:</strong> ${request.target}</div>
+                            <div><strong>Amount:</strong> ₹${request.amount}</div>
+                            <div><strong>UTR:</strong> ${request.utr}</div>
+                            <div><strong>Time:</strong> ${new Date(request.timestamp).toLocaleString()}</div>
+                            <div><strong>Add-ons:</strong> ${request.accuracyBooster ? 'Booster ' : ''}${request.insurance ? 'Insurance' : ''}${!request.accuracyBooster && !request.insurance ? 'None' : ''}</div>
+                        </div>
+                        <div class="request-actions">
+                            <button class="btn-approve" onclick="approvePayment('${requestId}', '${request.userId}', '${request.target}', ${request.amount}, ${request.accuracyBooster || false}, ${request.insurance || false})">Approve</button>
+                            <button class="btn-reject" onclick="rejectPayment('${requestId}')">Reject</button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            });
+    }
+    
+    function refreshPayments() {
+        loadPaymentRequests();
+        alert('Payment requests refreshed!');
+    }
+    
+    function approveAllPayments() {
+        if (confirm('Are you sure you want to approve ALL pending payments?')) {
+            database.ref('paymentRequests').orderByChild('status').equalTo('pending').once('value')
+                .then(snapshot => {
+                    const requests = snapshot.val();
+                    if (!requests) {
+                        alert('No pending payments found!');
+                        return;
+                    }
+                    
+                    let approvedCount = 0;
+                    Object.keys(requests).forEach(requestId => {
+                        const request = requests[requestId];
+                        database.ref('paymentRequests/' + requestId).update({
+                            status: 'approved',
+                            approvedAt: Date.now()
+                        }).then(() => {
+                            const sessionId = 'session_' + Date.now();
+                            const targetData = targetConfigs[request.target];
+                            
+                            database.ref('sessions/' + request.userId).set({
+                                sessionId: sessionId,
+                                platform: request.platform,
+                                target: request.target,
+                                startBalance: targetData.start,
+                                currentBalance: targetData.start,
+                                targetAmount: targetData.target,
+                                accuracyBooster: request.accuracyBooster || false,
+                                insurance: request.insurance || false,
+                                status: 'active',
+                                startedAt: Date.now(),
+                                lastActive: Date.now()
+                            });
+                            
+                            approvedCount++;
+                            
+                            if (approvedCount === Object.keys(requests).length) {
+                                alert(`Approved ${approvedCount} payments successfully!`);
+                                loadPaymentRequests();
+                            }
+                        });
+                    });
+                });
+        }
+    }
+    
+    function rejectAllPayments() {
+        if (confirm('Are you sure you want to reject ALL pending payments?')) {
+            database.ref('paymentRequests').orderByChild('status').equalTo('pending').once('value')
+                .then(snapshot => {
+                    const requests = snapshot.val();
+                    if (!requests) {
+                        alert('No pending payments found!');
+                        return;
+                    }
+                    
+                    let rejectedCount = 0;
+                    Object.keys(requests).forEach(requestId => {
+                        database.ref('paymentRequests/' + requestId).update({
+                            status: 'rejected',
+                            rejectedAt: Date.now()
+                        }).then(() => {
+                            rejectedCount++;
+                            if (rejectedCount === Object.keys(requests).length) {
+                                alert(`Rejected ${rejectedCount} payments successfully!`);
+                                loadPaymentRequests();
+                            }
+                        });
+                    });
+                });
+        }
+    }
+    
+    function approvePayment(requestId, userId, target, amount, accuracyBooster, insurance) {
+        database.ref('paymentRequests/' + requestId).update({
+            status: 'approved',
+            approvedAt: Date.now()
+        }).then(() => {
+            const sessionId = 'session_' + Date.now();
+            const targetData = targetConfigs[target];
+            
+            database.ref('sessions/' + userId).set({
+                sessionId: sessionId,
+                platform: currentPlatform,
+                target: target,
+                startBalance: targetData.start,
+                currentBalance: targetData.start,
+                targetAmount: targetData.target,
+                accuracyBooster: accuracyBooster || false,
+                insurance: insurance || false,
+                status: 'active',
+                startedAt: Date.now(),
+                lastActive: Date.now()
+            }).then(() => {
+                alert('Payment approved! User can now access prediction page.');
+                loadPaymentRequests();
+            });
+        });
+    }
+    
+    function rejectPayment(requestId) {
+        database.ref('paymentRequests/' + requestId).update({
+            status: 'rejected',
+            rejectedAt: Date.now()
+        }).then(() => {
+            loadPaymentRequests();
+        });
+    }
+    
+    // ==================== USER MANAGEMENT ====================
+    
+    function loadAllUsers() {
+        database.ref('sessions').once('value')
+            .then(snapshot => {
+                const sessions = snapshot.val();
+                const container = document.getElementById('users-list');
+                container.innerHTML = '';
+                
+                if (!sessions) {
+                    container.innerHTML = '<div style="color: #aaa; text-align: center; padding: 20px;">No active users found</div>';
+                    return;
+                }
+                
+                let totalEarnings = 0;
+                let activeCount = 0;
+                let completedCount = 0;
+                
+                Object.keys(sessions).forEach(userId => {
+                    const session = sessions[userId];
+                    const targetData = targetConfigs[session.target];
+                    
+                    // Calculate earnings
+                    totalEarnings += targetData.price;
+                    if (session.accuracyBooster) totalEarnings += targetData.booster;
+                    if (session.insurance) totalEarnings += targetData.insurance;
+                    
+                    activeCount++;
+                    
+                    const div = document.createElement('div');
+                    div.className = 'request-item user-item';
+                    div.innerHTML = `
+                        <div class="request-info">
+                            <div><strong>User ID:</strong> ${userId.substring(0, 15)}...</div>
+                            <div><strong>Platform:</strong> ${session.platform}</div>
+                            <div><strong>Target:</strong> ${session.target}</div>
+                            <div><strong>Balance:</strong> ₹${session.currentBalance}</div>
+                            <div><strong>Started:</strong> ${new Date(session.startedAt).toLocaleString()}</div>
+                            <div><strong>Add-ons:</strong> ${session.accuracyBooster ? 'Booster' : ''} ${session.insurance ? 'Insurance' : ''}</div>
+                        </div>
+                        <div class="request-actions">
+                            <button class="btn-approve" onclick="manageUserSession('${userId}')">Manage</button>
+                            <button class="btn-reject" onclick="deleteUserSession('${userId}')">Delete</button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+                
+                // Update stats
+                document.getElementById('total-users').textContent = activeCount;
+                document.getElementById('active-sessions').textContent = activeCount;
+                document.getElementById('total-earnings').textContent = `₹${totalEarnings}`;
+                document.getElementById('completed-targets').textContent = completedCount;
+            });
+    }
+    
+    function manageUserSession(userId) {
+        const action = prompt(`Manage user ${userId}\n\nOptions:\n1. Reset Balance\n2. Add Funds\n3. Change Target\n4. Extend Session\n\nEnter option number:`);
+        
+        if (!action) return;
+        
+        database.ref('sessions/' + userId).once('value')
+            .then(snapshot => {
+                const session = snapshot.val();
+                if (!session) {
+                    alert('User session not found!');
+                    return;
+                }
+                
+                switch(action) {
+                    case '1':
+                        const newBalance = prompt('Enter new balance:');
+                        if (newBalance && !isNaN(newBalance)) {
+                            database.ref('sessions/' + userId).update({
+                                currentBalance: parseInt(newBalance),
+                                startBalance: parseInt(newBalance)
+                            }).then(() => {
+                                alert('Balance reset successfully!');
+                                loadAllUsers();
+                            });
+                        }
+                        break;
+                        
+                    case '2':
+                        const addAmount = prompt('Enter amount to add:');
+                        if (addAmount && !isNaN(addAmount)) {
+                            const newBal = (session.currentBalance || 0) + parseInt(addAmount);
+                            database.ref('sessions/' + userId).update({
+                                currentBalance: newBal
+                            }).then(() => {
+                                alert('Funds added successfully!');
+                                loadAllUsers();
+                            });
+                        }
+                        break;
+                        
+                    case '3':
+                        const newTarget = prompt(`Current target: ${session.target}\n\nAvailable targets:\n350-1500\n500-3500\n1000-10000\n2500-25000\n5000-50000\n1000-35000\n2000-70000\n\nEnter new target:`);
+                        if (newTarget && targetConfigs[newTarget]) {
+                            database.ref('sessions/' + userId).update({
+                                target: newTarget,
+                                targetAmount: targetConfigs[newTarget].target
+                            }).then(() => {
+                                alert('Target changed successfully!');
+                                loadAllUsers();
+                            });
+                        }
+                        break;
+                        
+                    case '4':
+                        const extendDays = prompt('Extend session by how many days?');
+                        if (extendDays && !isNaN(extendDays)) {
+                            const newEndTime = (session.startedAt || Date.now()) + (parseInt(extendDays) * 24 * 60 * 60 * 1000);
+                            database.ref('sessions/' + userId).update({
+                                startedAt: newEndTime - (24 * 60 * 60 * 1000)
+                            }).then(() => {
+                                alert(`Session extended by ${extendDays} days!`);
+                                loadAllUsers();
+                            });
+                        }
+                        break;
+                        
+                    default:
+                        alert('Invalid option!');
+                }
+            });
+    }
+    
+    function deleteUserSession(userId) {
+        if (confirm(`Are you sure you want to delete session for user ${userId}?`)) {
+            database.ref('sessions/' + userId).remove()
+                .then(() => {
+                    alert('User session deleted successfully!');
+                    loadAllUsers();
+                });
+        }
+    }
+    
+    function exportUsers() {
+        database.ref('sessions').once('value')
+            .then(snapshot => {
+                const sessions = snapshot.val();
+                if (!sessions) {
+                    alert('No users to export!');
+                    return;
+                }
+                
+                let csvContent = "User ID,Platform,Target,Start Balance,Current Balance,Target Amount,Accuracy Booster,Insurance,Start Time\n";
+                
+                Object.keys(sessions).forEach(userId => {
+                    const session = sessions[userId];
+                    csvContent += `"${userId}","${session.platform || ''}","${session.target || ''}",${session.startBalance || 0},${session.currentBalance || 0},${session.targetAmount || 0},"${session.accuracyBooster || false}","${session.insurance || false}","${new Date(session.startedAt || 0).toISOString()}"\n`;
+                });
+                
+                // Create download link
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `users_${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                
+                alert('Users exported to CSV successfully!');
+            });
+    }
+    
+    // ==================== STATISTICS ====================
+    
+    function loadStatistics() {
+        // Load all data for statistics
+        Promise.all([
+            database.ref('sessions').once('value'),
+            database.ref('paymentRequests').once('value'),
+            database.ref('completedTargets').once('value'),
+            database.ref('failedTargets').once('value')
+        ]).then(([sessionsSnap, paymentsSnap, completedSnap, failedSnap]) => {
+            const sessions = sessionsSnap.val() || {};
+            const payments = paymentsSnap.val() || {};
+            const completed = completedSnap.val() || {};
+            const failed = failedSnap.val() || {};
+            
+            let totalEarnings = 0;
+            let todayEarnings = 0;
+            let weekEarnings = 0;
+            let monthEarnings = 0;
+            let totalRefunds = 0;
+            let successCount = 0;
+            let totalTime = 0;
+            let targetCount = 0;
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+            const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+            
+            // Calculate earnings from payments
+            Object.values(payments).forEach(payment => {
+                if (payment.status === 'approved') {
+                    totalEarnings += payment.amount || 0;
+                    
+                    const paymentDate = new Date(payment.timestamp || payment.approvedAt || 0);
+                    if (paymentDate >= today) {
+                        todayEarnings += payment.amount || 0;
+                    }
+                    if (paymentDate >= weekAgo) {
+                        weekEarnings += payment.amount || 0;
+                    }
+                    if (paymentDate >= monthAgo) {
+                        monthEarnings += payment.amount || 0;
+                    }
+                }
+            });
+            
+            // Calculate refunds from failed targets
+            Object.values(failed).forEach(failedUser => {
+                Object.values(failedUser).forEach(fail => {
+                    if (fail.refundAmount) {
+                        totalRefunds += fail.refundAmount;
+                    }
+                });
+            });
+            
+            // Calculate success rate and average time
+            Object.values(completed).forEach(completedUser => {
+                successCount += Object.keys(completedUser).length;
+                targetCount += Object.keys(completedUser).length;
+            });
+            
+            Object.values(failed).forEach(failedUser => {
+                targetCount += Object.keys(failedUser).length;
+            });
+            
+            const successRate = targetCount > 0 ? Math.round((successCount / targetCount) * 100) : 0;
+            
+            // Update statistics display
+            document.getElementById('today-earnings').textContent = `₹${todayEarnings}`;
+            document.getElementById('week-earnings').textContent = `₹${weekEarnings}`;
+            document.getElementById('month-earnings').textContent = `₹${monthEarnings}`;
+            document.getElementById('total-earnings').textContent = `₹${totalEarnings}`;
+            document.getElementById('total-refunds').textContent = `₹${totalRefunds}`;
+            document.getElementById('success-rate').textContent = `${successRate}%`;
+            document.getElementById('avg-time').textContent = `${Math.round(totalTime / Math.max(targetCount, 1))}m`;
+            
+            // Update chart
+            updateEarningsChart(payments);
+        });
+    }
+    
+    function updateEarningsChart(paymentsData) {
+        const ctx = document.getElementById('earningsChart').getContext('2d');
+        
+        // Calculate daily earnings for last 7 days
+        const dailyEarnings = [0, 0, 0, 0, 0, 0, 0];
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        Object.values(paymentsData || {}).forEach(payment => {
+            if (payment.status === 'approved' && payment.timestamp) {
+                const paymentDate = new Date(payment.timestamp);
+                const daysAgo = Math.floor((today - paymentDate) / (24 * 60 * 60 * 1000));
+                
+                if (daysAgo >= 0 && daysAgo < 7) {
+                    dailyEarnings[6 - daysAgo] += payment.amount || 0;
+                }
+            }
+        });
+        
+        // Get day labels
+        const days = [];
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date(today.getTime() - i * 24 * 60 * 60 * 1000);
+            days.push(date.toLocaleDateString('en-IN', { weekday: 'short' }));
+        }
+        
+        // Destroy existing chart if it exists
+        if (earningsChart) {
+            earningsChart.destroy();
+        }
+        
+        // Create new chart
+        earningsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: days,
+                datasets: [{
+                    label: 'Daily Earnings (₹)',
+                    data: dailyEarnings,
+                    borderColor: '#bc13fe',
+                    backgroundColor: 'rgba(188, 19, 254, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#fff'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#aaa',
+                            callback: function(value) {
+                                return '₹' + value;
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(255,255,255,0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#aaa'
+                        },
+                        grid: {
+                            color: 'rgba(255,255,255,0.1)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // ==================== MANUAL ENTRY ====================
+    
+    function updateManualTarget() {
+        const targetSelect = document.getElementById('manual-target');
+        const selectedTarget = targetSelect.value;
+        
+        if (!selectedTarget || !targetConfigs[selectedTarget]) {
+            document.getElementById('manual-total').textContent = '₹0';
+            return;
+        }
+        
+        const targetData = targetConfigs[selectedTarget];
+        let total = targetData.price;
+        
+        if (document.getElementById('manual-accuracy').checked) {
+            total += targetData.booster;
+        }
+        
+        if (document.getElementById('manual-insurance').checked) {
+            total += targetData.insurance;
+        }
+        
+        document.getElementById('manual-total').textContent = `₹${total}`;
+    }
+    
+    function createManualSession() {
+        const userId = document.getElementById('manual-user-id').value.trim() || generateUserId();
+        const platform = document.getElementById('manual-platform').value;
+        const target = document.getElementById('manual-target').value;
+        const accuracyBooster = document.getElementById('manual-accuracy').checked;
+        const insurance = document.getElementById('manual-insurance').checked;
+        
+        // Validation
+        if (!platform) {
+            alert('Please select a platform!');
+            return;
+        }
+        
+        if (!target) {
+            alert('Please select a target!');
+            return;
+        }
+        
+        const targetData = targetConfigs[target];
+        if (!targetData) {
+            alert('Invalid target selected!');
+            return;
+        }
+        
+        const sessionId = 'session_' + Date.now();
+        const sessionData = {
+            sessionId: sessionId,
+            platform: platform,
+            target: target,
+            startBalance: targetData.start,
+            currentBalance: targetData.start,
+            targetAmount: targetData.target,
+            accuracyBooster: accuracyBooster,
+            insurance: insurance,
+            status: 'active',
+            startedAt: Date.now(),
+            lastActive: Date.now(),
+            isManual: true
+        };
+        
+        database.ref('sessions/' + userId).set(sessionData)
+            .then(() => {
+                // Also create payment record
+                let totalAmount = targetData.price;
+                if (accuracyBooster) totalAmount += targetData.booster;
+                if (insurance) totalAmount += targetData.insurance;
+                
+                const paymentId = 'manual_' + Date.now();
+                const paymentData = {
+                    userId: userId,
+                    platform: platform,
+                    target: target,
+                    amount: totalAmount,
+                    basePrice: targetData.price,
+                    accuracyBooster: accuracyBooster,
+                    insurance: insurance,
+                    boosterPrice: accuracyBooster ? targetData.booster : 0,
+                    insurancePrice: insurance ? targetData.insurance : 0,
+                    utr: 'MANUAL_ENTRY',
+                    status: 'approved',
+                    timestamp: Date.now(),
+                    approvedAt: Date.now(),
+                    isManual: true
+                };
+                
+                database.ref('paymentRequests/' + paymentId).set(paymentData)
+                    .then(() => {
+                        alert(`Session created successfully!\n\nUser ID: ${userId}\nPlatform: ${platform}\nTarget: ${target}\nBalance: ₹${targetData.start}\n\nUser can now access the prediction page.`);
+                        
+                        // Reset form
+                        document.getElementById('manual-user-id').value = '';
+                        document.getElementById('manual-platform').value = '';
+                        document.getElementById('manual-target').value = '';
+                        document.getElementById('manual-accuracy').checked = false;
+                        document.getElementById('manual-insurance').checked = false;
+                        document.getElementById('manual-total').textContent = '₹0';
+                    });
+            })
+            .catch(error => {
+                console.error('Error creating manual session:', error);
+                alert('Error creating session. Please try again.');
+            });
+    }
+    
+    // ==================== REPORTS ====================
+    
+    function generateDailyReport() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+        
+        generateReport(today, tomorrow, 'Daily Report');
+    }
+    
+    function generateWeeklyReport() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+        
+        generateReport(weekAgo, today, 'Weekly Report');
+    }
+    
+    function generateMonthlyReport() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+        
+        generateReport(monthAgo, today, 'Monthly Report');
+    }
+    
+    function generateReport(startDate, endDate, title) {
+        Promise.all([
+            database.ref('paymentRequests').once('value'),
+            database.ref('sessions').once('value'),
+            database.ref('completedTargets').once('value'),
+            database.ref('failedTargets').once('value')
+        ]).then(([paymentsSnap, sessionsSnap, completedSnap, failedSnap]) => {
+            const payments = paymentsSnap.val() || {};
+            const sessions = sessionsSnap.val() || {};
+            const completed = completedSnap.val() || {};
+            const failed = failedSnap.val() || {};
+            
+            let totalEarnings = 0;
+            let totalRefunds = 0;
+            let newUsers = 0;
+            let activeSessions = 0;
+            let completedTargets = 0;
+            let failedTargets = 0;
+            let successRate = 0;
+            
+            // Filter data by date range
+            Object.values(payments).forEach(payment => {
+                if (payment.status === 'approved' && payment.approvedAt) {
+                    const paymentDate = new Date(payment.approvedAt);
+                    if (paymentDate >= startDate && paymentDate < endDate) {
+                        totalEarnings += payment.amount || 0;
+                    }
+                }
+            });
+            
+            Object.values(sessions).forEach(session => {
+                const sessionDate = new Date(session.startedAt || 0);
+                if (sessionDate >= startDate && sessionDate < endDate) {
+                    newUsers++;
+                }
+                if (session.status === 'active') {
+                    activeSessions++;
+                }
+            });
+            
+            Object.values(completed).forEach(userTargets => {
+                Object.values(userTargets).forEach(target => {
+                    const completionDate = new Date(target.timestamp || 0);
+                    if (completionDate >= startDate && completionDate < endDate) {
+                        completedTargets++;
+                    }
+                });
+            });
+            
+            Object.values(failed).forEach(userTargets => {
+                Object.values(userTargets).forEach(target => {
+                    const failureDate = new Date(target.timestamp || 0);
+                    if (failureDate >= startDate && failureDate < endDate) {
+                        failedTargets++;
+                        totalRefunds += target.refundAmount || 0;
+                    }
+                });
+            });
+            
+            const totalTargets = completedTargets + failedTargets;
+            successRate = totalTargets > 0 ? Math.round((completedTargets / totalTargets) * 100) : 0;
+            
+            // Generate report HTML
+            const reportHTML = `
+                <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; margin: 20px 0;">
+                    <h3 style="color: var(--gold); margin-bottom: 20px;">${title} - ${startDate.toLocaleDateString()} to ${endDate.toLocaleDateString()}</h3>
+                    
+                    <div class="stats-container">
+                        <div class="stat-box">
+                            <div class="stat-label">Total Earnings</div>
+                            <div class="stat-value">₹${totalEarnings}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Total Refunds</div>
+                            <div class="stat-value">₹${totalRefunds}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Net Profit</div>
+                            <div class="stat-value" style="color: ${totalEarnings - totalRefunds >= 0 ? 'var(--green)' : 'var(--red)'}">₹${totalEarnings - totalRefunds}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">New Users</div>
+                            <div class="stat-value">${newUsers}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Active Sessions</div>
+                            <div class="stat-value">${activeSessions}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Success Rate</div>
+                            <div class="stat-value">${successRate}%</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <h4 style="color: var(--teal); margin-bottom: 10px;">Detailed Breakdown:</h4>
+                        <div style="font-size: 0.9rem; color: #aaa;">
+                            <div>Completed Targets: ${completedTargets}</div>
+                            <div>Failed Targets: ${failedTargets}</div>
+                            <div>Total Targets: ${totalTargets}</div>
+                            <div>Gross Earnings: ₹${totalEarnings}</div>
+                            <div>Refunds Paid: ₹${totalRefunds}</div>
+                            <div>Net Earnings: ₹${totalEarnings - totalRefunds}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('report-content').innerHTML = reportHTML;
+        });
+    }
+    
+    function exportReport() {
+        const reportContent = document.getElementById('report-content').textContent;
+        
+        if (!reportContent.trim()) {
+            alert('Generate a report first!');
+            return;
+        }
+        
+        const blob = new Blob([reportContent], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `report_${new Date().toISOString().split('T')[0]}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        alert('Report exported successfully!');
+    }
+    
+    // ==================== ORIGINAL APPLICATION FUNCTIONS ====================
+    
+    // Navigation functions
+    function openTargetPage(platform) {
+        currentPlatform = platform;
+        document.getElementById('landing-page').style.display = 'none';
+        document.getElementById('target-page').style.display = 'flex';
+    }
+    
+    function goBackToPlatform() {
+        document.getElementById('target-page').style.display = 'none';
+        document.getElementById('landing-page').style.display = 'flex';
+    }
+    
+    function selectTarget(target, price) {
+        currentTarget = target;
+        currentPrice = price;
+        
+        // Get add-on prices for this target
+        const targetData = targetConfigs[target];
+        accuracyBoosterPrice = targetData.booster;
+        insurancePrice = targetData.insurance;
+        
+        // Reset add-ons selection
+        accuracyBoosterSelected = false;
+        insuranceSelected = false;
+        
+        // Update UI
+        document.getElementById('selected-target-summary').textContent = target.replace('-', ' To ');
+        document.getElementById('accuracy-booster-price').textContent = `₹${accuracyBoosterPrice}`;
+        document.getElementById('insurance-price').textContent = `₹${insurancePrice}`;
+        
+        // Reset toggle buttons
+        document.getElementById('accuracy-booster-toggle').className = 'toggle-btn';
+        document.getElementById('accuracy-booster-toggle').innerHTML = '<i class="fas fa-plus"></i> ADD';
+        document.getElementById('accuracy-booster-item').classList.remove('selected');
+        
+        document.getElementById('insurance-toggle').className = 'toggle-btn';
+        document.getElementById('insurance-toggle').innerHTML = '<i class="fas fa-plus"></i> ADD';
+        document.getElementById('insurance-item').classList.remove('selected');
+        
+        // Update total amount
+        updateTotalAmount();
+        
+        document.getElementById('target-page').style.display = 'none';
+        document.getElementById('addons-page').style.display = 'flex';
+    }
+    
+    function goBackToTarget() {
+        document.getElementById('addons-page').style.display = 'none';
+        document.getElementById('target-page').style.display = 'flex';
+    }
+    
+    function toggleAccuracyBooster() {
+        accuracyBoosterSelected = !accuracyBoosterSelected;
+        const toggleBtn = document.getElementById('accuracy-booster-toggle');
+        const item = document.getElementById('accuracy-booster-item');
+        
+        if (accuracyBoosterSelected) {
+            toggleBtn.className = 'toggle-btn active';
+            toggleBtn.innerHTML = '<i class="fas fa-check"></i> ADDED';
+            item.classList.add('selected');
+        } else {
+            toggleBtn.className = 'toggle-btn';
+            toggleBtn.innerHTML = '<i class="fas fa-plus"></i> ADD';
+            item.classList.remove('selected');
+        }
+        updateTotalAmount();
+    }
+    
+    function skipAccuracyBooster() {
+        accuracyBoosterSelected = false;
+        const toggleBtn = document.getElementById('accuracy-booster-toggle');
+        const item = document.getElementById('accuracy-booster-item');
+        toggleBtn.className = 'toggle-btn';
+        toggleBtn.innerHTML = '<i class="fas fa-plus"></i> ADD';
+        item.classList.remove('selected');
+        updateTotalAmount();
+    }
+    
+    function toggleInsurance() {
+        insuranceSelected = !insuranceSelected;
+        const toggleBtn = document.getElementById('insurance-toggle');
+        const item = document.getElementById('insurance-item');
+        
+        if (insuranceSelected) {
+            toggleBtn.className = 'toggle-btn active';
+            toggleBtn.innerHTML = '<i class="fas fa-check"></i> ADDED';
+            item.classList.add('selected');
+        } else {
+            toggleBtn.className = 'toggle-btn';
+            toggleBtn.innerHTML = '<i class="fas fa-plus"></i> ADD';
+            item.classList.remove('selected');
+        }
+        updateTotalAmount();
+    }
+    
+    function skipInsurance() {
+        insuranceSelected = false;
+        const toggleBtn = document.getElementById('insurance-toggle');
+        const item = document.getElementById('insurance-item');
+        toggleBtn.className = 'toggle-btn';
+        toggleBtn.innerHTML = '<i class="fas fa-plus"></i> ADD';
+        item.classList.remove('selected');
+        updateTotalAmount();
+    }
+    
+    function updateTotalAmount() {
+        totalPayableAmount = currentPrice;
+        if (accuracyBoosterSelected) {
+            totalPayableAmount += accuracyBoosterPrice;
+        }
+        if (insuranceSelected) {
+            totalPayableAmount += insurancePrice;
+        }
+        document.getElementById('total-payable-amount').textContent = `₹${totalPayableAmount}`;
+    }
+    
+    function proceedToPayment() {
+        // Update payment page with selected add-ons
+        document.getElementById('selected-target-display').textContent = currentTarget.replace('-', ' To ');
+        document.getElementById('payment-amount-display').textContent = `Pay ₹${totalPayableAmount}`;
+        
+        // Update add-ons summary
+        const addonsSummary = document.getElementById('addons-summary-display');
+        let summaryHTML = '<div style="color: var(--teal); margin-bottom: 8px; font-weight: bold;">SELECTED ADD-ONS:</div>';
+        
+        if (accuracyBoosterSelected || insuranceSelected) {
+            if (accuracyBoosterSelected) {
+                summaryHTML += `
+                    <div class="addon-summary-item">
+                        <span>90% Accuracy Booster</span>
+                        <span style="color: var(--gold);">₹${accuracyBoosterPrice}</span>
+                    </div>`;
+            }
+            if (insuranceSelected) {
+                summaryHTML += `
+                    <div class="addon-summary-item">
+                        <span>Loss Protection Insurance</span>
+                        <span style="color: var(--gold);">₹${insurancePrice}</span>
+                    </div>`;
+            }
+        } else {
+            summaryHTML += '<div style="color: #aaa; font-style: italic;">No add-ons selected</div>';
+        }
+        
+        addonsSummary.innerHTML = summaryHTML;
+        
+        document.getElementById('addons-page').style.display = 'none';
+        document.getElementById('payment-page').style.display = 'flex';
+    }
+    
+    function goBackToAddons() {
+        document.getElementById('payment-page').style.display = 'none';
+        document.getElementById('addons-page').style.display = 'flex';
+    }
+    
+    function openSupport() {
+        window.open('https://t.me/Predict450', '_blank');
+    }
+    
+    function submitPayment() {
+        const utr = document.getElementById('utr-input').value.trim();
+        if (!utr || utr.length < 10) {
+            alert('Please enter a valid UTR number (minimum 10 characters)');
+            return;
+        }
+        
+        paymentRequestId = 'payreq_' + Date.now();
+        const paymentData = {
+            userId: userId,
+            platform: currentPlatform,
+            target: currentTarget,
+            amount: totalPayableAmount,
+            basePrice: currentPrice,
+            accuracyBooster: accuracyBoosterSelected,
+            insurance: insuranceSelected,
+            boosterPrice: accuracyBoosterSelected ? accuracyBoosterPrice : 0,
+            insurancePrice: insuranceSelected ? insurancePrice : 0,
+            utr: utr,
+            status: 'pending',
+            timestamp: Date.now()
+        };
+        
+        database.ref('paymentRequests/' + paymentRequestId).set(paymentData)
+            .then(() => {
+                alert('Payment request submitted! Please wait for admin approval (2-5 minutes).');
+                document.getElementById('utr-input').value = '';
+                checkPaymentApproval();
+            })
+            .catch(error => {
+                console.error('Payment submission error:', error);
+                alert('Error submitting payment. Please try again.');
+            });
+    }
+    
+    function checkPaymentApproval() {
+        const checkInterval = setInterval(() => {
+            database.ref('paymentRequests/' + paymentRequestId).once('value')
+                .then(snapshot => {
+                    const request = snapshot.val();
+                    if (request && request.status === 'approved') {
+                        clearInterval(checkInterval);
+                        startPredictionSession();
+                    } else if (request && request.status === 'rejected') {
+                        clearInterval(checkInterval);
+                        alert('Payment rejected. Please contact customer support.');
+                    }
+                });
+        }, 10000);
+    }
+    
+    function startPredictionSession() {
+        const targetData = targetConfigs[currentTarget];
+        currentBalance = targetData.start;
+        targetMax = targetData.target;
+        originalBalanceForCycle = currentBalance;
+        currentLevel = 1;
+        currentPredictionMode = Math.random() > 0.5 ? "SIZE" : "COLOR";
+        lastBetWon = true;
+        analysisWindowSize = 10;
+        allResults = [];
+        
+        // Update UI
+        document.getElementById('current-target-goal').textContent = `Target: ${currentTarget.replace('-', ' To ')}`;
+        document.getElementById('current-balance').textContent = `₹${currentBalance}`;
+        
+        // Update add-ons badges
+        const badgesContainer = document.getElementById('addons-badges');
+        let badgesHTML = '';
+        if (accuracyBoosterSelected) {
+            badgesHTML += '<div class="badge accuracy-badge"><i class="fas fa-bolt"></i> 90% ACCURACY</div>';
+        }
+        if (insuranceSelected) {
+            badgesHTML += '<div class="badge insurance-badge"><i class="fas fa-shield-alt"></i> INSURED</div>';
+        }
+        badgesContainer.innerHTML = badgesHTML;
+        
+        updateBetAmounts();
+        
+        document.getElementById('payment-page').style.display = 'none';
+        document.getElementById('prediction-page').style.display = 'block';
+        startPredictor();
+    }
+    
+    function goToTargetSelection() {
+        document.getElementById('success-popup').style.display = 'none';
+        document.getElementById('failure-popup').style.display = 'none';
+        document.getElementById('prediction-page').style.display = 'none';
+        document.getElementById('target-page').style.display = 'flex';
+    }
+    
+    // FIXED BET AMOUNT CALCULATION
+    function updateBetAmounts() {
+        // Calculate bets based on ORIGINAL balance for the cycle (not current balance)
+        const level1Amount = Math.floor(originalBalanceForCycle * 0.15);
+        const level2Amount = Math.floor(originalBalanceForCycle * 0.30);
+        const level3Amount = originalBalanceForCycle - level1Amount - level2Amount;
+        
+        document.getElementById('level-1-amount').textContent = `₹${level1Amount}`;
+        document.getElementById('level-2-amount').textContent = `₹${level2Amount}`;
+        document.getElementById('level-3-amount').textContent = `₹${level3Amount}`;
+        
+        // Set current bet amount based on level
+        if (currentLevel === 1) currentBetAmount = level1Amount;
+        if (currentLevel === 2) currentBetAmount = level2Amount;
+        if (currentLevel === 3) currentBetAmount = level3Amount;
+        
+        document.getElementById('bet-amount-display').textContent = `Bet Amount: ₹${currentBetAmount}`;
+        
+        // Update level highlights
+        document.getElementById('level-1').className = currentLevel === 1 ? 'level-box level-active' : 'level-box';
+        document.getElementById('level-2').className = currentLevel === 2 ? 'level-box level-active' : 'level-box';
+        document.getElementById('level-3').className = currentLevel === 3 ? 'level-box level-active' : 'level-box';
+    }
+    
+    // UPDATED: OPPOSITE PREDICTION LOGIC (From Anti-Manipulation Predictor)
+    function analyzePatterns(results, type) {
+        const recent = results.slice(0, analysisWindowSize);
+        const dataArr = recent.map(r => type === 'SIZE' ? r.size : r.color);
+        
+        // Calculate streak
+        let streak = 1;
+        for(let i = 0; i < dataArr.length - 1; i++) {
+            if(dataArr[i] === dataArr[i+1]) streak++;
+            else break;
+        }
+        
+        let internalPrediction = ""; // What the system calculates
+        let logicName = "Random Mix";
+        
+        // ANTI-MANIPULATION LOGIC (from second file)
+        if (!lastBetWon) {
+            // If last bet was lost
+            // Anti-Manipulation Active: Try to reverse the pattern
+            internalPrediction = (Math.random() > 0.3) ? 
+                (dataArr[0] === (type === 'SIZE' ? 'BIG' : 'RED') ? 
+                    (type === 'SIZE' ? 'SMALL' : 'GREEN') : 
+                    (type === 'SIZE' ? 'BIG' : 'RED')) : 
+                dataArr[0];
+            logicName = "Anti-Manipulation Active";
+        } else {
+            // Normal Pattern Logic
+            if (streak >= 3) {
+                internalPrediction = Math.random() > 0.5 ? dataArr[0] : (dataArr[0] === 'BIG' ? 'SMALL' : 'BIG');
+                logicName = "Pattern: " + streak + " Streak Trend Analysis.";
+            } else {
+                internalPrediction = Math.random() > 0.5 ? 
+                    (type === 'SIZE' ? 'BIG' : 'RED') : 
+                    (type === 'SIZE' ? 'SMALL' : 'GREEN');
+                logicName = "Pattern: Zig-Zag / Cluster Mix Detected.";
+            }
+        }
+        
+        // IMPORTANT: SHOW USER THE OPPOSITE OF WHAT THE SYSTEM CALCULATES
+        let userPrediction = internalPrediction;
+        // Flip the prediction for user (opposite)
+        if (type === 'SIZE') {
+            userPrediction = internalPrediction === 'BIG' ? 'SMALL' : 'BIG';
+        } else {
+            userPrediction = internalPrediction === 'RED' ? 'GREEN' : 'RED';
+        }
+        
+        // Apply accuracy booster if selected (flips user prediction again 10% of the time)
+        if (accuracyBoosterSelected && Math.random() < 0.1) {
+            if (type === 'SIZE') {
+                userPrediction = userPrediction === "BIG" ? "SMALL" : "BIG";
+            } else {
+                userPrediction = userPrediction === "RED" ? "GREEN" : "RED";
+            }
+            logicName += " (Boosted)";
+        }
+        
+        return { value: userPrediction, logic: logicName };
+    }
+    
+    // Prediction functions
+    async function startPredictor() {
+        document.getElementById('current-period').textContent = "LOADING...";
+        await updateData(true);
+        setInterval(() => updateData(false), 2000);
+    }
+    
+    async function updateData(isInitial = false) {
+        if (isAnalyzing && !isInitial) return;
+        try {
+            const response = await fetch(API_URL);
+            const json = await response.json();
+            const list = json.data.list;
+            const latestItem = list[0];
+            const nextPeriod = (BigInt(latestItem.issueNumber) + 1n).toString();
+            
+            // Update all results for analysis
+            updateAllResults(list);
+            
+            // Process pending results
+            processPendingResults(list);
+            
+            if (nextPeriod !== lastPeriod) {
+                lastPeriod = nextPeriod;
+                document.getElementById('current-period').textContent = nextPeriod;
+                
+                // Increase analysis window with each new result
+                analysisWindowSize = Math.min(50, analysisWindowSize + 1);
+                
+                if (!isAnalyzing) {
+                    isAnalyzing = true;
+                    setTimeout(() => {
+                        generatePrediction();
+                        isAnalyzing = false;
+                    }, 1000);
+                }
+            }
+        } catch (e) {
+            console.error("Update Error", e);
+        }
+    }
+    
+    function updateAllResults(data) {
+        // Convert API data to our format
+        const newResults = data.map(item => {
+            const num = parseInt(item.number);
+            const size = num >= 5 ? "BIG" : "SMALL";
+            let color;
+            if (num === 0 || num === 5) {
+                color = "VIOLET";
+            } else {
+                color = (num % 2 === 0) ? "RED" : "GREEN";
+            }
+            return {
+                period: item.issueNumber,
+                number: item.number,
+                size: size,
+                color: color,
+                timestamp: Date.now()
+            };
+        });
+        
+        // Add new results to allResults, avoiding duplicates
+        newResults.forEach(newResult => {
+            if (!allResults.some(r => r.period === newResult.period)) {
+                allResults.unshift(newResult);
+            }
+        });
+        
+        // Keep only last 100 results
+        if (allResults.length > 100) {
+            allResults = allResults.slice(0, 100);
+        }
+    }
+    
+    function generatePrediction() {
+        let predictionValue;
+        let predictionMode = currentPredictionMode;
+        
+        // If last bet was lost, switch mode between SIZE and COLOR
+        if (!lastBetWon) {
+            predictionMode = predictionMode === "SIZE" ? "COLOR" : "SIZE";
+            currentPredictionMode = predictionMode;
+        }
+        
+        // Use pattern analysis (will return opposite prediction for user)
+        const patternResult = analyzePatterns(allResults, predictionMode);
+        predictionValue = patternResult.value;
+        
+        // Update prediction display
+        const predictionText = document.getElementById('prediction-text');
+        predictionText.textContent = predictionValue;
+        predictionText.className = "prediction-text " + predictionValue.toLowerCase();
+        document.getElementById('prediction-type').textContent = predictionMode === "SIZE" ? 'BIG/SMALL' : 'RED/GREEN';
+        
+        // Display the pattern logic (but hide that it's opposite)
+        document.getElementById('pattern-details').textContent = `Analysis: ${patternResult.logic} (Window: ${analysisWindowSize})`;
+        
+        // Store prediction
+        const prediction = {
+            mode: predictionMode,
+            value: predictionValue,
+            period: lastPeriod,
+            betAmount: currentBetAmount,
+            level: currentLevel,
+            analysisWindow: analysisWindowSize
+        };
+        
+        historyData.unshift({ ...prediction, status: 'PENDING', timestamp: Date.now() });
+        renderHistory();
+    }
+    
+    function processPendingResults(list) {
+        if (historyData.length > 0) {
+            historyData.forEach((item, index) => {
+                if (item.status === 'PENDING') {
+                    const match = list.find(l => l.issueNumber === item.period);
+                    if (match) {
+                        const num = parseInt(match.number);
+                        const actualSize = num >= 5 ? "BIG" : "SMALL";
+                        let actualColor;
+                        if (num === 0 || num === 5) {
+                            actualColor = "VIOLET";
+                        } else {
+                            actualColor = (num % 2 === 0) ? "RED" : "GREEN";
+                        }
+                        
+                        let isWin = false;
+                        if (item.mode === 'SIZE' && item.value === actualSize) {
+                            isWin = true;
+                        } else if (item.mode === 'COLOR') {
+                            if (num === 0 && item.value === 'RED') {
+                                isWin = true;
+                            } else if (num === 5 && item.value === 'GREEN') {
+                                isWin = true;
+                            } else if (item.value === actualColor) {
+                                isWin = true;
+                            }
+                        }
+                        
+                        item.status = isWin ? 'WIN' : 'LOSS';
+                        item.actualResult = `${match.number} (${actualSize}/${actualColor})`;
+                        
+                        // Update balance based on result
+                        if (isWin) {
+                            currentBalance += item.betAmount;
+                            currentLevel = 1; // Reset to level 1 on win
+                            originalBalanceForCycle = currentBalance; // Reset original balance for next cycle
+                            winStreak++;
+                            lossStreak = 0;
+                            lastBetWon = true;
+                        } else {
+                            currentBalance -= item.betAmount;
+                            lossStreak++;
+                            winStreak = 0;
+                            lastBetWon = false;
+                            
+                            // Move to next level on loss
+                            if (currentLevel < 3) {
+                                currentLevel++;
+                            } else {
+                                // Level 3 loss - cycle complete, reset to level 1 with current balance
+                                currentLevel = 1;
+                                originalBalanceForCycle = currentBalance;
+                            }
+                        }
+                        
+                        // Check target completion or loss
+                        if (currentBalance >= targetMax) {
+                            setTimeout(() => showSuccessPopup(), 1000);
+                        } else if (currentBalance <= 0) {
+                            setTimeout(() => showFailurePopup(), 1000);
+                        }
+                        
+                        // Update UI
+                        document.getElementById('current-balance').textContent = `₹${currentBalance}`;
+                        updateBetAmounts();
+                        
+                        totalPredictions++;
+                        if (isWin) correctPredictions++;
+                        renderHistory();
+                    }
+                }
+            });
+        }
+    }
+    
+    function showSuccessPopup() {
+        document.getElementById('completed-amount').textContent = targetMax;
+        
+        // Show insurance status if selected
+        if (insuranceSelected) {
+            document.getElementById('insurance-refund').style.display = 'block';
+        }
+        
+        document.getElementById('success-popup').style.display = 'flex';
+        
+        database.ref('completedTargets/' + userId + '/' + Date.now()).set({
+            target: currentTarget,
+            achieved: targetMax,
+            accuracyBooster: accuracyBoosterSelected,
+            insurance: insuranceSelected,
+            timestamp: Date.now()
+        });
+    }
+    
+    function showFailurePopup() {
+        const targetData = targetConfigs[currentTarget];
+        const originalPrice = currentPrice;
+        const discountedPrice = Math.floor(originalPrice / 2);
+        const refundAmount = targetData.start + originalPrice; // Deposit + target price
+        
+        const failureMessage = document.getElementById('failure-message');
+        const failureTitle = document.getElementById('failure-title');
+        const failureButton = document.getElementById('failure-button');
+        
+        if (insuranceSelected) {
+            // Insurance activated - show refund message
+            failureTitle.textContent = "INSURANCE ACTIVATED!";
+            failureMessage.innerHTML = `
+                <p>Your insurance has been activated!</p>
+                <p style="color: var(--pink); margin-top: 15px; font-size: 1.3rem;">
+                    <i class="fas fa-shield-alt"></i> ₹${refundAmount} Refund Approved!
+                </p>
+                <p style="font-size: 0.9rem; color: #aaa; margin-top: 10px;">
+                    Deposit: ₹${targetData.start} + Target Price: ₹${originalPrice}
+                </p>
+                <p style="font-size: 1.1rem; color: var(--green); margin-top: 15px;">
+                    Total Refund: ₹${refundAmount}
+                </p>
+                <p style="font-size: 0.8rem; color: #aaa; margin-top: 10px;">
+                    Refund will be processed within 24 hours.
+                </p>
+            `;
+            failureButton.textContent = "CLAIM REFUND & BUY NEW TARGET";
+        } else {
+            // No insurance - show discount offer
+            failureTitle.textContent = "TARGET LOST!";
+            failureMessage.innerHTML = `
+                <p>Unfortunately, you lost all your balance.</p>
+                <p style="color: var(--gold); margin-top: 15px; font-size: 1.2rem;">Special Offer: 50% Discount on Next Target!</p>
+                <p style="font-size: 0.9rem; color: #aaa; margin-top: 10px;">Original Price: ₹<span id="original-price">${originalPrice}</span></p>
+                <p style="font-size: 1.1rem; color: var(--green);">Discounted Price: ₹<span id="discounted-price">${discountedPrice}</span></p>
+            `;
+            failureButton.textContent = "BUY WITH DISCOUNT";
+        }
+        
+        document.getElementById('failure-popup').style.display = 'flex';
+        
+        database.ref('failedTargets/' + userId + '/' + Date.now()).set({
+            target: currentTarget,
+            lostAmount: currentPrice,
+            accuracyBooster: accuracyBoosterSelected,
+            insurance: insuranceSelected,
+            refundAmount: insuranceSelected ? refundAmount : 0,
+            timestamp: Date.now()
+        });
+    }
+    
+    function renderHistory() {
+        const container = document.getElementById('history-items');
+        container.innerHTML = '';
+        
+        historyData.slice(0, 10).forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'history-item';
+            div.innerHTML = `
+                <div style="display: flex; flex-direction: column; font-size: 0.8rem;">
+                    <span>Period: ${item.period}</span>
+                    <span style="color: #aaa; font-size: 0.7rem;">${item.mode} L${item.level}</span>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <span class="${item.value.toLowerCase()}" style="font-weight: bold;">${item.value}</span>
+                    <span style="font-size: 0.7rem; color: #aaa;">Bet: ₹${item.betAmount}</span>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                    <span class="${item.status.toLowerCase()}" style="font-weight: bold;">${item.status}</span>
+                    ${item.actualResult ? 
+                        `<span style="font-size: 0.7rem; color: #aaa;">${item.actualResult}</span>` : 
+                        `<span style="font-size: 0.7rem; color: var(--gold);">Pending</span>`
+                    }
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+    
+    // Check for active session on page load
+    window.onload = function() {
+        database.ref('sessions/' + userId).once('value')
+            .then(snapshot => {
+                const session = snapshot.val();
+                if (session && session.status === 'active') {
+                    if (Date.now() - session.startedAt < 24 * 60 * 60 * 1000) {
+                        currentPlatform = session.platform;
+                        currentTarget = session.target;
+                        currentBalance = session.currentBalance;
+                        targetMax = session.targetAmount;
+                        accuracyBoosterSelected = session.accuracyBooster || false;
+                        insuranceSelected = session.insurance || false;
+                        originalBalanceForCycle = currentBalance;
+                        
+                        document.getElementById('current-target-goal').textContent = `Target: ${currentTarget.replace('-', ' To ')}`;
+                        document.getElementById('current-balance').textContent = `₹${currentBalance}`;
+                        
+                        // Update add-ons badges
+                        const badgesContainer = document.getElementById('addons-badges');
+                        let badgesHTML = '';
+                        if (accuracyBoosterSelected) {
+                            badgesHTML += '<div class="badge accuracy-badge"><i class="fas fa-bolt"></i> 90% ACCURACY</div>';
+                        }
+                        if (insuranceSelected) {
+                            badgesHTML += '<div class="badge insurance-badge"><i class="fas fa-shield-alt"></i> INSURED</div>';
+                        }
+                        badgesContainer.innerHTML = badgesHTML;
+                        
+                        updateBetAmounts();
+                        
+                        document.getElementById('landing-page').style.display = 'none';
+                        document.getElementById('prediction-page').style.display = 'block';
+                        startPredictor();
+                    }
+                }
+            });
+    };
+    
+    // Enter key support
+    document.getElementById('utr-input').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            submitPayment();
+        }
+    });
+    
+    document.getElementById('admin-pass').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            if (this.value === "7738") {
+                document.getElementById('admin-controls').style.display = 'block';
+                loadPaymentRequests();
+                loadStatistics();
+            }
+        }
+    });
+    
+    // Initialize manual target change listener
+    document.getElementById('manual-target').addEventListener('change', updateManualTarget);
+    document.getElementById('manual-accuracy').addEventListener('change', updateManualTarget);
+    document.getElementById('manual-insurance').addEventListener('change', updateManualTarget);
+</script>
+</body>
+</html>
